@@ -1,0 +1,4 @@
+# Exlcude all venv files
+
+*/venv*
+
