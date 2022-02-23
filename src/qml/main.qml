@@ -65,18 +65,28 @@ ApplicationWindow{
                         source: icon
                         clip: true
 
+                        Rectangle{
+                            id: backdrop
+                            color: Material.background
+                            width: parent.width
+                            height: 75
+                            opacity: 0.25
+                        }
+
                         Text {
                             id: nameText
                             text: name
                             color: Material.accent
-                            font.pointSize: 20
+                            font.pointSize: 24
                             //fontSizeMode: Text.Fit
-                            font.weight: Font.Bold
-                            style: Text.Raised
+                            font.weight: Font.Black
+                            style: Text.Outline
                             styleColor: Material.primary
                             clip: true
                             anchors.fill: parent
                             anchors.margins: 10
+
+                            
                         }
 
                         MouseArea
@@ -213,7 +223,21 @@ ApplicationWindow{
                var id = split[1]
                updated_model.append({"name": name, "icon": img, "series_id": id});
             }
-       }  
+       } 
+
+       function onSearching(){
+           queue_model.clear();
+       }
+
+       function onAddQueue(id, img) {
+           
+        if(queue_model.count <= 10){
+           var split = id.split("__UUID__");
+           var name = split[0]
+           var id = split[1]
+           queue_model.append({"name": name, "icon": img, "series_id": id});
+        }
+   } 
     }
 
     Component.onCompleted: {

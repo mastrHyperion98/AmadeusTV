@@ -19,7 +19,7 @@ ToolBar {
             //searchTextChanged(text)
             var a = 10;
         }
-        onAccepted: doSearch(searchText.text)
+        onAccepted: doSearch(search_text.text)
         color: Material.primary
         placeholderTextColor: Material.primary
         horizontalAlignment: TextInput.AlignHCenter
@@ -36,5 +36,9 @@ ToolBar {
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 10
         imageSource: "../../assets/menu.png"
+    }
+
+    function doSearch(text){
+        backend.search(text);
     }
 }

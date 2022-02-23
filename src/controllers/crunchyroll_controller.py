@@ -17,6 +17,10 @@ class CrunchyrollController(QObject):
     #Signals
     addUpdated = Signal(str, str)
 
+    addQueue = Signal(str, str)
+
+    searching = Signal()
+
     @Slot()
     def getSimulcast(self):
         simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.SIMULCAST)
@@ -40,5 +44,20 @@ class CrunchyrollController(QObject):
             uuid = f'{name}__UUID__{id}'
             #tup.append(name)
             self.addUpdated.emit(uuid, img)
+
+
+    @Slot(str)
+    def search(self, prefix):
+        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.PREFIX, filter_tag=prefix)
+        tup = []
+        self.searching.emit()
+        print("searching")
+        for series in simulcast: 
+            img = series.landscape_image['full_url']
+            name = series.name
+            id = series.series_id
+            uuid = f'{name}__UUID__{id}'
+            #To Change
+            self.addQueue.emit(uuid, img)
 
 
