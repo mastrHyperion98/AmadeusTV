@@ -38,17 +38,21 @@ ApplicationWindow{
             width: parent.width
             height: 1440
             color: Material.accent
+            
 
             ListModel {
-                id: model
-                ListElement {
-                    name: "Re: Zero"
-                    icon: "https://img1.ak.crunchyroll.com/i/spire1/653fb1c89ecec17dc6947308819d702b1610403801_full.jpg"
-                }
-                ListElement{
-                    name: "ReLIFE"
-                    icon: "https://img1.ak.crunchyroll.com/i/spire1/a539b8042cd8271f3d4768b9eeebbdc81465708253_full.jpg"
-                }
+                id: queue_model
+                dynamicRoles: true
+            }
+
+            ListModel {
+                id: simulcast_model
+                dynamicRoles: true
+            }
+
+            ListModel {
+                id: updated_model
+                dynamicRoles: true
             }
 
             Component {
@@ -74,6 +78,12 @@ ApplicationWindow{
                             anchors.fill: parent
                             anchors.margins: 10
                         }
+
+                        MouseArea
+                           {
+                              anchors.fill: parent
+                              onClicked: console.log(series_id)
+                           }
                     }
                 }
             }
@@ -106,7 +116,7 @@ ApplicationWindow{
                     anchors.fill: parent
                     anchors.top: queue_label.bottom
                     anchors.topMargin: 50
-                    model: model
+                    model: queue_model
                     delegate: delegate
                     orientation: ListView.Horizontal
                     clip: true
@@ -138,7 +148,7 @@ ApplicationWindow{
 
                 ListView {
                     anchors.fill: parent
-                    model: model
+                    model: simulcast_model
                     delegate: delegate
                     orientation: ListView.Horizontal
                     anchors.top: simulcast_label.bottom
@@ -171,7 +181,7 @@ ApplicationWindow{
 
                 ListView {
                     anchors.fill: parent
-                    model: model
+                    model: updated_model
                     delegate: delegate
                     orientation: ListView.Horizontal
                     anchors.top: updated_label.bottom
@@ -180,5 +190,34 @@ ApplicationWindow{
             }
 
         }
+    }
+
+    Connections {
+        target: backend
+
+        function onAddSimulcast(id, img) {
+
+             if(simulcast_model.count <= 10){
+                var split = id.split("__UUID__");
+                var name = split[0]
+                var id = split[1]
+                simulcast_model.append({"name": name, "icon": img, "series_id": id});
+             }
+        }  
+
+        function onAddUpdated(id, img) {
+
+            if(updated_model.count <= 10){
+               var split = id.split("__UUID__");
+               var name = split[0]
+               var id = split[1]
+               updated_model.append({"name": name, "icon": img, "series_id": id});
+            }
+       }  
+    }
+
+    Component.onCompleted: {
+        backend.getSimulcast();
+        backend.getUpdated();
     }
 }
