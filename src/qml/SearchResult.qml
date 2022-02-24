@@ -10,6 +10,8 @@ import QtQuick.Controls.Material 2.15
 Rectangle{
     objectName: "SEARCH"
     color: Material.background
+    property int numCol: parent.width / 320;
+    property double heightMultiplier: 160 / parent.height
 
     GridView{
         id: search_results
@@ -18,8 +20,8 @@ Rectangle{
         width: parent.width
         height: parent.height
         snapMode: GridView.SnapToRow
-        cellWidth: parent.width / 4
-        cellHeight: parent.height / 4
+        cellWidth: parent.width / numCol
+        cellHeight: parent.height * heightMultiplier
         anchors.fill: parent
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -84,7 +86,6 @@ Rectangle{
        }
 
        function onAddSearch(id, img) {
-           
             if(search_model.count <= 100){
                 var split = id.split("__UUID__");
                 var name = split[0]
