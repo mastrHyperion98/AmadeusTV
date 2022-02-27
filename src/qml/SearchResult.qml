@@ -70,7 +70,7 @@ Rectangle{
                       anchors.fill: parent
                       onClicked: {
                           // get collection information here.
-                          main.push("Series.qml", {"series_id": series_id})
+                          main.push("Series.qml", {"series_id": series_id, "name": name, "description": description, "portrait_icon": portrait_icon, "landscape_icon": icon})
                           allowReturn = true;
                       } 
                    }
@@ -85,26 +85,12 @@ Rectangle{
            search_model.clear();
        }
 
-       function onAddSearch(id, img) {
+       function onAddSearch(data, img) {
+            data = JSON.parse(data);
             if(search_model.count <= 100){
-                var split = id.split("__UUID__");
-                var name = split[0]
-                var id = split[1]
-                search_model.append({"name": name, "icon": img, "series_id": id});
+                //console.log(JsonObject.name);
+                search_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
             }
         } 
     }
-/*
-    Connections {
-        target: 
-        function onTextChanged() {
-            if(text.length == 0){
-                search_model.clear();
-            }
-            else if(text.length %3 == 0){
-                //search_model.clear();
-                //doSearch(search_text.text);
-            }
-        }
-    }*/
 }

@@ -77,7 +77,7 @@ ScrollView{
                           anchors.fill: parent
                           onClicked: {
                               // get collection information here.
-                              main.push("Series.qml", {"series_id": series_id})
+                              main.push("Series.qml", {"series_id": series_id, "name": name, "description": description, "portrait_icon": portrait_icon, "landscape_icon": icon})
                               allowReturn = true;
                           } 
                        }
@@ -191,24 +191,21 @@ ScrollView{
     Connections {
         target: backend
 
-        function onAddSimulcast(id, img) {
-
-             if(simulcast_model.count <= 10){
-                var split = id.split("__UUID__");
-                var name = split[0]
-                var id = split[1]
-                simulcast_model.append({"name": name, "icon": img, "series_id": id});
+        function onAddSimulcast(data, img) {
+            data = JSON.parse(data);
+            if(simulcast_model.count <= 10){
+                //console.log(JsonObject.name);
+                 simulcast_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
              }
         }  
 
-        function onAddUpdated(id, img) {
+        function onAddUpdated(data, img) {
 
-            if(updated_model.count <= 10){
-               var split = id.split("__UUID__");
-               var name = split[0]
-               var id = split[1]
-               updated_model.append({"name": name, "icon": img, "series_id": id});
-            }
+            data = JSON.parse(data);
+            if(simulcast_model.count <= 10){
+                //console.log(JsonObject.name);
+                 updated_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
+             }
        } 
 
        function onAddQueue(id, img) {
