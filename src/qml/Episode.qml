@@ -70,4 +70,14 @@ Rectangle{
             anchors.fill: parent
         }
     }
+
+    MouseArea{
+        anchors.fill: parent
+        onClicked: {
+            // get collection information here.
+            //main.push("Series.qml", {"series_id": series_id, "name": name, "description": description, "portrait_icon": portrait_icon, "landscape_icon": icon})
+            main.push("Player.qml", "media_id": media_id)
+            allowReturn = true;
+        } 
+    }
 }

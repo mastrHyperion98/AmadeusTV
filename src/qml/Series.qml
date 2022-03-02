@@ -117,13 +117,13 @@ Rectangle{
                 var ep_num = data[i].episode_number;
                 var icon = data[i].thumbnail;
                 var media_id = data[i].media_id;
+                var colletion_id = data[i].collection_id
 
-                collection_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id});
+                collection_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
             }
         }  
     
     }
-
 
     Component.onCompleted: {
         backend.fetchCollections(series_id)

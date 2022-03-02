@@ -1,4 +1,5 @@
 from PySide2.QtCore import QObject, Slot, Signal
+from m3u8 import Playlist
 
 from lib.crunchyroll_connect.server import CrunchyrollServer
 from lib.crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
@@ -17,19 +18,22 @@ def combine_string(delimeter, strings):
     return combined
 
 
-
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
         QObject.__init__(self)
-        creds = {
-            "account": "placeholder",
-            "password": "placeholder"
-        }
+
         self.crunchyroll = CrunchyrollServer()
         self.crunchyroll.create_session()
         self.crunchyroll.login(creds['account'], creds['password'])
         self.limit = 10
 
+        self.playlist = []
+        self.current = 0
+
+    
+    setSource = Signal(str)
+    setHeader = Signal(str, str)
+    setQuality = Signal(str)
 
     #Signals
     addSimulcast = Signal(str, str)
@@ -114,6 +118,7 @@ class CrunchyrollController(QObject):
     @Slot(str)
     #Get list of collection and return first collection episodes info
     def fetchCollections(self, series_id):
+        self.playlist.clear()
         collections = self.crunchyroll.get_collections(series_id)
         json_collections = []
 
@@ -142,6 +147,8 @@ class CrunchyrollController(QObject):
             series_id = episode.series_id
             thumbnail = episode.screenshot_image['large_url']
             media_id = episode.media_id
+            stream_data = self.crunchyroll.get_media_stream(media_id)
+            self.playlist.append(Episode(name, episode_number, stream_data))
 
             json_def = {
                 "name": name,
@@ -153,9 +160,56 @@ class CrunchyrollController(QObject):
             }
             json_episodes.append(json_def)
 
+
+
         json_episodes = json.dumps(json_episodes)
-        #print(json_episodes)
         #self.fetchCollections.emit(json_collections)
         self.fetchEpisodes.emit(json_episodes)
+
+    @Slot()
+    def getCurrent(self):
+        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+
+    @Slot()
+    def getNext(self):
+        if 0<= self.current < len(self.playlist):
+            self.current += 1
+        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+
+    @Slot()
+    def getPrev(self):
+        if self.current > 0:
+            self.current -= 1
+        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+
+    @Slot()
+    def getUltra(self):
+        self.setQuality.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
+
+    @Slot()
+    def getHigh(self):
+        self.setQuality.emit(self.playlist[self.current].stream[Quality.HIGH.value].url)
+
+    @Slot()
+    def getMedium(self):
+        self.setQuality.emit(self.playlist[self.current].stream[Quality.MID.value].url)
+    
+    @Slot()
+    def getLow(self):
+        self.setQuality.emit(self.playlist[self.current].stream[Quality.LOW.value].url)
+    
+    @Slot()
+    def getLowest(self):
+        self.setQuality.emit(self.playlist[self.current].stream[Quality.LOWEST.value].url)
+
+
+class Episode():
+    def __init__(self, name, episode_num, stream_data):
+        self.name = name
+        self.episode_num = episode_num
+        self.stream = stream_data
 
 

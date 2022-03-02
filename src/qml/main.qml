@@ -10,8 +10,6 @@ ApplicationWindow{
     id: window
     minimumHeight: 720
     minimumWidth: 1280
-    maximumWidth: Screen.desktopAvailableWidth
-    maximumHeight: Screen.desktopAvailableHeight
     width: 1280
     height: 720
     visible: true
