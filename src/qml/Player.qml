@@ -8,7 +8,6 @@ Rectangle {
     id: root
     //anchors.fill: parent
     color: "black"
-
     property bool isFullscreen: false
     property bool isSettingsOpen: false
     property int playback_position: 0
@@ -165,7 +164,7 @@ Rectangle {
             to: 1.
             value: 0.50
             stepSize: 0.10
-            live: false
+            live: true
 
             width: 125
         }

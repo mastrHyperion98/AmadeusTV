@@ -31,6 +31,15 @@ Rectangle{
                 thumbnail: icon
                 episode_name: name
                 episode_number: number
+
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        backend.setPlaylistIndex(index);
+                        main.push("Player.qml");
+                        allowReturn = true;
+                    } 
+                }
             }
         }
     }
@@ -96,6 +105,7 @@ Rectangle{
             color: Material.background
 
             ListView {
+                id: episode_views
                 anchors.fill: parent
                 model: collection_model
                 delegate: delegate
@@ -119,6 +129,7 @@ Rectangle{
                 var media_id = data[i].media_id;
                 var colletion_id = data[i].collection_id
 
+                backend.addMediaToPlaylist(media_id, name, ep_num)
                 collection_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
             }
         }  

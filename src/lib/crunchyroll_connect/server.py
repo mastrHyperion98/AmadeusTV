@@ -249,7 +249,8 @@ class CrunchyrollServer:
                     created=el['created']
                 )
 
-                collections.append(collection)
+                if "dub" not in collection.name.lower():
+                    collections.append(collection)
 
             return collections
         else:

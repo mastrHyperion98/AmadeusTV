@@ -147,8 +147,8 @@ class CrunchyrollController(QObject):
             series_id = episode.series_id
             thumbnail = episode.screenshot_image['large_url']
             media_id = episode.media_id
-            stream_data = self.crunchyroll.get_media_stream(media_id)
-            self.playlist.append(Episode(name, episode_number, stream_data))
+            #stream_data = self.crunchyroll.get_media_stream(media_id)
+            #self.playlist.append(Episode(name, episode_number, stream_data))
 
             json_def = {
                 "name": name,
@@ -166,24 +166,46 @@ class CrunchyrollController(QObject):
         #self.fetchCollections.emit(json_collections)
         self.fetchEpisodes.emit(json_episodes)
 
+    @Slot(str, str, str)
+    def addMediaToPlaylist(self, media_id, name, episode_num):
+        self.playlist.append(Episode(name, episode_num, media_id))
+
+    @Slot(int)
+    def setPlaylistIndex(self, index):
+        if index < len(self.playlist):
+            self.current = index
+
+
     @Slot()
     def getCurrent(self):
-        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
-        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+        episode = self.playlist[self.current]
+        episode.getStream(self.crunchyroll)
+
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(episode.name, episode.episode_num)
+
 
     @Slot()
     def getNext(self):
         if 0<= self.current < len(self.playlist):
             self.current += 1
-        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
-        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+
+        episode = self.playlist[self.current]
+        episode.getStream(self.crunchyroll)
+
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
     def getPrev(self):
         if self.current > 0:
             self.current -= 1
-        self.setSource.emit(self.playlist[self.current].stream[Quality.ULTRA.value].url)
-        self.setHeader.emit(self.playlist[self.current].name, self.playlist[self.current].episode_num)
+        
+        episode = self.playlist[self.current]
+        episode.getStream(self.crunchyroll)
+
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
     def getUltra(self):
@@ -207,9 +229,16 @@ class CrunchyrollController(QObject):
 
 
 class Episode():
-    def __init__(self, name, episode_num, stream_data):
+    def __init__(self, name, episode_num, media_id):
         self.name = name
         self.episode_num = episode_num
-        self.stream = stream_data
+        self.media_id = media_id
+        self.stream_data = None
+
+    def getStream(self, crunchyroll):
+        if self.stream_data is None: 
+            stream_data = crunchyroll.get_media_stream(self.media_id)
+            self.stream = stream_data
+
 
 
