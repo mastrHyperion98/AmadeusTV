@@ -600,6 +600,12 @@ Rectangle {
             if (!seekControl.pressed) 
                 seekControl.position = player.position;
             setPlaybackPosition();
+
+            if(player.duration > 0)
+                if(player.position == player.duration){
+                    backend.getNext();
+                    player.play();
+                }
         }
 
         // check when media is stalled
@@ -622,6 +628,7 @@ Rectangle {
         target: backend
         
         function onSetSource(source) {
+            playback_position = 0;
             player.source = source ;
             player.play()
         }  
@@ -638,6 +645,6 @@ Rectangle {
     }
     // run things on start up
     Component.onCompleted: {
-        backend.getCurrent()
+        backend.getCurrent();
     }
 }
