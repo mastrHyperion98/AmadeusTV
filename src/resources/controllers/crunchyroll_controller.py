@@ -47,7 +47,8 @@ class CrunchyrollController(QObject):
     addSearch = Signal(str, str)
 
     #use json string emit all episodes
-    fetchEpisodes = Signal(str)
+    getEpisodes = Signal(str)
+    getCollections = Signal(str)
 
     searching = Signal()
 
@@ -129,12 +130,17 @@ class CrunchyrollController(QObject):
             collection_id = collection.collection_id
             availability = collection.availability
 
-            json_def = {"name": name, 
-            "series_id": series_id,
-            "collection_id": collection_id, 
-            "availability": availability}
+            json_def = {
+                "name": name, 
+                "series_id": series_id,
+                "collection_id": collection_id, 
+                "availability": availability
+            }
 
             json_collections.append(json_def)
+
+        json_collections = json.dumps(json_collections)
+        self.getCollections.emit(json_collections)
 
         default = collections[0]
         json_episodes = []
@@ -164,8 +170,33 @@ class CrunchyrollController(QObject):
 
 
         json_episodes = json.dumps(json_episodes)
-        #self.fetchCollections.emit(json_collections)
-        self.fetchEpisodes.emit(json_episodes)
+        self.getEpisodes.emit(json_episodes)
+
+    @Slot(str)
+    def fetchEpisodeList(self, collection_id):
+        self.playlist.clear()
+        episodes = self.crunchyroll.get_episodes(collection_id)
+        json_episodes = []
+        for episode in episodes:
+            name = episode.name
+            episode_number = episode.episode_number
+            collection_id = collection_id
+            series_id = episode.series_id
+            thumbnail = episode.screenshot_image['large_url']
+            media_id = episode.media_id
+
+            json_def = {
+                "name": name,
+                "episode_number": episode_number,
+                "collection_id": collection_id,
+                "series_id": series_id,
+                "thumbnail": thumbnail,
+                "media_id": media_id
+            }
+            json_episodes.append(json_def)
+
+        json_episodes = json.dumps(json_episodes)
+        self.getEpisodes.emit(json_episodes)
 
     @Slot(str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num):
