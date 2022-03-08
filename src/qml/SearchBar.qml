@@ -54,7 +54,7 @@ ToolBar {
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 10
-        imageSource: "../../assets/menu.png"
+        imageSource: "../assets/menu.png"
         //checkable: true
         onClicked: {
             console.log("print menu")
@@ -66,7 +66,7 @@ ToolBar {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 10
-        imageSource: "../../assets/return.png"
+        imageSource: "../assets/return.png"
         onClicked: {
             if(main.currentItem.objectName == "SEARCH"){
                 isSearching = false;

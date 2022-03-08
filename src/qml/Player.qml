@@ -57,7 +57,7 @@ Rectangle {
 
     Rectangle {
         id: controlBar
-        //source: "../../assets/ControlBar.png"
+        //source: "../assets/ControlBar.png"
         height: 70
         width: root.width
         anchors.left: parent.left
@@ -94,7 +94,7 @@ Rectangle {
 
         ImageButton {
             id: previous_button
-            imageSource: "../../assets/previous.png"
+            imageSource: "../assets/previous.png"
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
             onClicked: {
@@ -107,7 +107,7 @@ Rectangle {
 
         ImageButton {
             id: play_button
-            imageSource: player.playbackState === MediaPlayer.PlayingState ? "../../assets/pause.png": "../../assets/play.png"
+            imageSource: player.playbackState === MediaPlayer.PlayingState ? "../assets/pause.png": "../assets/play.png"
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
 
@@ -128,7 +128,7 @@ Rectangle {
 
         ImageButton {
             id: next_button
-            imageSource: "../../assets/next.png"
+            imageSource: "../assets/next.png"
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
             onClicked: {
@@ -142,7 +142,7 @@ Rectangle {
 
         ImageButton {
             id: volume_button
-            imageSource: player.muted ? "../../assets/mute.png": "../../assets/volume_on.png"
+            imageSource: player.muted ? "../assets/mute.png": "../assets/volume_on.png"
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
             onClicked: {
@@ -171,7 +171,7 @@ Rectangle {
 
         ImageButton {
             id: videoSettings
-            imageSource:  "../../assets/settings.png"
+            imageSource:  "../assets/settings.png"
             onClicked: {
                 if (isSettingsOpen){
                     videoOptions.opacity = 0
@@ -409,7 +409,7 @@ Rectangle {
         }
         ImageButton {
             id: fullscreenButton
-            imageSource: window.isFullscreen ? "../../assets/close_fullscreen.png":"../../assets/enter_fullscreen.png"
+            imageSource: window.isFullscreen ? "../assets/close_fullscreen.png":"../assets/enter_fullscreen.png"
             onClicked: {
                 //Toggle fullscreen
                 toggleFullScreen();
@@ -479,7 +479,7 @@ Rectangle {
 
     Rectangle {
         id: videoHeader
-        //source: "../../assets/ControlBar.png"
+        //source: "../assets/ControlBar.png"
         height: 70
         width: root.width
         anchors.left: parent.left

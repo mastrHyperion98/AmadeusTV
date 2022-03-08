@@ -1,8 +1,8 @@
 from PySide2.QtCore import QObject, Slot, Signal
 from m3u8 import Playlist
 
-from lib.crunchyroll_connect.server import CrunchyrollServer
-from lib.crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
+from ..crunchyroll_connect.server import CrunchyrollServer
+from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 import json
 
 def combine_string(delimeter, strings):
@@ -22,9 +22,10 @@ class CrunchyrollController(QObject):
     def __init__(self, limit=10):
         QObject.__init__(self)
 
+
         self.crunchyroll = CrunchyrollServer()
         self.crunchyroll.create_session()
-        self.crunchyroll.login(creds['account'], creds['password'])
+        self.crunchyroll.login("steven.smith1998@hotmail.com", "Panther98@123")
         self.limit = 10
 
         self.playlist = []
