@@ -17,7 +17,7 @@ Rectangle{
     clip: true
 
     ListModel {
-        id: collection_model
+        id: episode_model
         dynamicRoles: true
     }
 
@@ -42,6 +42,11 @@ Rectangle{
                 }
             }
         }
+    }
+
+    ListModel {
+        id: collection_model
+        dynamicRoles: true
     }
 
     Rectangle{
@@ -94,20 +99,73 @@ Rectangle{
             }
         }
         
+        Rectangle{
+            id: collections
+            width: 1000
+            height: 50
+            anchors.top: series_header_content.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 25
+            color: Material.background
+
+            ComboBox {
+                id: collection_box
+                width: parent.width
+                height: 50
+                currentIndex: 0
+                model: collection_model
+                textRole: "name"
+                clip: true
+
+                delegate: ItemDelegate {
+                    id:itemDlgt
+                    width: collection_box.width
+                    height:80
+
+                    contentItem: Text {
+                        id:textItem_speed
+                        text: name
+                        color: hovered?Material.accent:"white"
+                        wrapMode: Text.WordWrap
+                        font.pointSize: 12
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                        elide: Text.ElideRight
+                    }
+                }
+                
+                contentItem: Text {
+                    leftPadding: 10
+                    text: collection_box.displayText
+                    color: "white"
+                    font.pointSize: 12
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignLeft
+            }
+
+                onActivated: {
+                    var id = collection_model.get(currentIndex).collection_id;
+                    episode_model.clear();
+                    backend.fetchEpisodeList(id);
+                }
+            }
+        }
+        
 
         Rectangle{
             id: episodes_content
             width: parent.width
-            height: parent.height - series_header_content.height - series_name.height
+            height: parent.height - series_header_content.height - collections.height - series_name.height
             anchors.right: parent.right
-            anchors.left: parent.left 
-            anchors.top: series_header_content.bottom
+            anchors.left: parent.left
+            anchors.top: collections.bottom
             color: Material.background
 
             ListView {
                 id: episode_views
                 anchors.fill: parent
-                model: collection_model
+                model: episode_model
                 delegate: delegate
                 orientation: ListView.Vertical
                 clip: true
@@ -118,7 +176,7 @@ Rectangle{
     Connections {
         target: backend
 
-        function onFetchEpisodes(data) {
+        function onGetEpisodes(data) {
             data = JSON.parse(data);
             var count = Object.keys(data).length;
            
@@ -130,10 +188,21 @@ Rectangle{
                 var colletion_id = data[i].collection_id
 
                 backend.addMediaToPlaylist(media_id, name, ep_num)
-                collection_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
+                episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
             }
-        }  
-    
+        }
+        function onGetCollections(data) {
+            data = JSON.parse(data);
+            var count = Object.keys(data).length;
+           
+            for(let i = 0; i < count; i++){
+                var name = data[i].name;
+                var series_id = data[i].series_id;
+                var colletion_id = data[i].collection_id
+
+                collection_model.append({"name": name, "series_id": series_id, "collection_id": colletion_id});
+            }
+        }    
     }
 
     Component.onCompleted: {
