@@ -26,3 +26,4 @@ The media player, officially only works with Gstreamer and Linux, any other conf
 3. Activate environment `source path-name/bin/activate` (This is for Unix may vary on windows `source path-name/bin/activate.bat`)
 4. Install required packages `pip install -r requirements.txt'
 5. When contributing to a new issue, unless project Admin create new branch based off of dev and PR any changes.
+6. All new branches should contain the `feature-` prefix followed by the name of the issue or a abreviation/number
