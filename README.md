@@ -19,5 +19,10 @@ Flatpak and AppImage are being considered for the first major release of the app
 
 # How to contribute
 
-I am not really expecting anyone to contribute, however simply clone the repository and install the packages by running the following command: 
-`pip install -r requirements.txt` from within the root directory of the project. 
+The media player, officially only works with Gstreamer and Linux, any other configurations have not been tested and are not supported. 
+
+1. Clone the repository (dev branch)
+2. Create a virtualvenv environment `virtualvenv path-to-create`
+3. Activate environment `source path-name/bin/activate` (This is for Unix may vary on windows `source path-name/bin/activate.bat`)
+4. Install required packages `pip install -r requirements.txt'
+5. When contributing to a new issue, unless project Admin create new branch based off of dev and PR any changes.
