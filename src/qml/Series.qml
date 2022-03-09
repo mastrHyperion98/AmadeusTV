@@ -13,7 +13,7 @@ Rectangle{
     property string description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     property var portrait_icon: ""
     property var landscape_icon: "" 
-    color: Material.accent
+    color: Material.background
     clip: true
 
     ListModel {
@@ -59,11 +59,10 @@ Rectangle{
         Text {
             id: series_name
             text: name
-            color: Material.accent
+            color: Material.primary
             font.pointSize: 24
             font.weight: Font.Black
             style: Text.Outline
-            styleColor: Material.primary
             anchors.top: parent.top 
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.margins: 15
@@ -90,7 +89,7 @@ Rectangle{
                 id: series_description
                 wrapMode: Text.WordWrap
                 text: description
-                color: Material.accent
+                color: Material.primary
                 font.pointSize: 16
                 anchors.left: portrait.right
                 anchors.right: parent.right
@@ -117,6 +116,10 @@ Rectangle{
                 textRole: "name"
                 clip: true
 
+                background: Rectangle {
+                    color: Material.primary
+                }
+
                 delegate: ItemDelegate {
                     id:itemDlgt
                     width: collection_box.width
@@ -142,7 +145,28 @@ Rectangle{
                     wrapMode: Text.WordWrap
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignLeft
-            }
+                }
+
+                popup: Popup{
+                    y: collection_box.height - 1
+                    width: collection_box.width
+                    height:contentItem.implicitHeigh
+                    padding: 1
+
+                    contentItem: ListView {
+                        id:listView_speed
+                        implicitHeight: contentHeight
+                        model: collection_box.popup.visible ? collection_box.delegateModel : null
+                
+                        ScrollIndicator.vertical: ScrollIndicator { }
+                        
+                    }
+                    
+                    background: Rectangle{
+                        color: Material.primary
+                    }
+
+                }
 
                 onActivated: {
                     var id = collection_model.get(currentIndex).collection_id;

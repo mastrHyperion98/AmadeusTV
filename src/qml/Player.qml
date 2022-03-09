@@ -165,7 +165,6 @@ Rectangle {
             value: 0.50
             stepSize: 0.10
             live: true
-
             width: 125
         }
 

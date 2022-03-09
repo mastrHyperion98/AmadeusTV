@@ -34,12 +34,11 @@ Rectangle{
         Text {
             id: episodeText
             text: "Episode: " + episode_number
-            color: Material.accent
+            color: Material.primary
             font.pointSize: 16
             //fontSizeMode: Text.Fit
             font.weight: Font.Black
             style: Text.Outline
-            styleColor: Material.primary
             clip: true
             anchors.fill: parent
             anchors.margins: 10
@@ -62,10 +61,9 @@ Rectangle{
             id: episode_name_id
             text: episode_name
             font.pointSize: 16
-            color: Material.accent
+            color: Material.primary
             font.weight: Font.Black
             style: Text.Outline
-            styleColor: Material.primary
             wrapMode: Text.Wrap
             anchors.fill: parent
         }
