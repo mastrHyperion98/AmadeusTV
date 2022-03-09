@@ -20,7 +20,7 @@ ScrollView{
         id: content
         width: parent.width
         height: 1440
-        color: Material.accent
+        color: Material.background
         
 
         ListModel {
@@ -59,17 +59,14 @@ ScrollView{
                     Text {
                         id: nameText
                         text: name
-                        color: Material.accent
+                        color: Material.primary
                         font.pointSize: 24
-                        //fontSizeMode: Text.Fit
                         font.weight: Font.Black
                         style: Text.Outline
-                        styleColor: Material.primary
+                        //styleColor: Material.primary
                         clip: true
                         anchors.fill: parent
                         anchors.margins: 10
-
-                        
                     }
 
                     MouseArea
@@ -91,19 +88,17 @@ ScrollView{
             width: parent.width
             height: 500
             color: Material.background
-            border.color: Material.accent
-            border.width: 10
+            border.width: 5
             
 
             Label {
                 id: queue_label
                 text: "Watch List"
-                color: Material.accent
+                color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
                 font.weight: Font.Bold
                 style: Text.Raised
-                styleColor: Material.primary
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
@@ -127,18 +122,16 @@ ScrollView{
             color: Material.background
             anchors.top: queue.bottom
             anchors.topMargin: -30
-            border.color: Material.accent
-            border.width: 10
+            border.width: 5
 
             Label {
                 id: simulcast_label
                 text: "Simulcasts"
-                color: Material.accent
+                color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
                 font.weight: Font.Bold
                 style: Text.Raised
-                styleColor: Material.primary
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding:15
             }
@@ -160,18 +153,16 @@ ScrollView{
             color: Material.background
             anchors.top: simulcasts.bottom
             anchors.topMargin: -30
-            border.color: Material.accent
-            border.width: 10
+            border.width: 5
 
             Label {
                 id: updated_label
                 text: "Updated"
-                color: Material.accent
+                color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
                 font.weight: Font.Bold
                 style: Text.Raised
-                styleColor: Material.primary
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }

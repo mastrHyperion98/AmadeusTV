@@ -13,13 +13,13 @@ ApplicationWindow{
     width: 1280
     height: 720
     visible: true
-    color: Material.accent
     property var isSearching: false
     property var allowReturn: false
 
     Material.theme: Material.Dark
-    Material.accent: Material.Pink
-    Material.primary: Material.Purple
+    Material.accent: "#DD2C00"
+    Material.background: "#212121"
+    Material.primary: "#FF6D00"
 
     header: SearchBar {
         id: header

@@ -40,12 +40,12 @@ ToolBar {
         horizontalAlignment: TextInput.AlignHCenter
         cursorDelegate: Rectangle {
             visible: search_text.cursorVisible
-            color: "white"
+            color: Material.primary
             width: search_text.cursorRectangle.width
         }
         background: Rectangle{
             radius: 15
-            color: Material.accent
+            color: Material.background
         }
     }   
 

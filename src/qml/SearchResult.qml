@@ -10,8 +10,8 @@ import QtQuick.Controls.Material 2.15
 Rectangle{
     objectName: "SEARCH"
     color: Material.background
-    property int numCol: parent.width / 320;
-    property double heightMultiplier: 160 / parent.height
+    property int numCol: parent.width / 400;
+    property double heightMultiplier: 240 / parent.height
 
     GridView{
         id: search_results
@@ -54,12 +54,11 @@ Rectangle{
                 Text {
                     id: nameText
                     text: name
-                    color: Material.accent
+                    color: Material.primary
                     font.pointSize: 24
                     //fontSizeMode: Text.Fit
                     font.weight: Font.Black
                     style: Text.Outline
-                    styleColor: Material.primary
                     clip: true
                     anchors.fill: parent
                     anchors.margins: 10
