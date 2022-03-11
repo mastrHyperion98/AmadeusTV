@@ -28,6 +28,8 @@ if __name__ == "__main__":
     engine.load(qml_path)
     #Exit application properly
     if not engine.rootObjects():
+        # Sync application settings
+        backend.settings.store.sync()
         sys.exit(-1)
 
     sys.exit(app.exec_())

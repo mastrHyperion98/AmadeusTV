@@ -13,6 +13,7 @@ ApplicationWindow{
     minimumWidth: 1280
     width: 1280
     height: 720
+    title: "AmadeusTV"
     visible: true
     property var isSearching: false
     property var allowReturn: false
