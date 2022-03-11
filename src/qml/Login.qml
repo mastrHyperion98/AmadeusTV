@@ -55,9 +55,24 @@ Rectangle{
         onToggled: backend.setRememberMe(checked);
     }
 
-    Button{
+    Text {
+        id: forgot_password
+        //anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: password_field.bottom
-        anchors.left: remember_me.right
+        anchors.right: password_field.right
+        anchors.verticalCenter: remember_me.verticalCenter
+        anchors.topMargin: 40
+        textFormat: Text.StyledText
+        font.pointSize: 12
+        linkColor: Material.primary
+        text: "<a href=\"https://www.crunchyroll.com/resetpw\">Forgot Password ?</a>."
+        onLinkActivated: Qt.openUrlExternally(link)
+    }
+
+    Button{
+        id: login
+        anchors.top: remember_me.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.margins: 25
         width: 475 - remember_me.width
         text: "Login"
