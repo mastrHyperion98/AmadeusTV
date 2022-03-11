@@ -645,5 +645,6 @@ Rectangle {
     // run things on start up
     Component.onCompleted: {
         backend.getCurrent();
+        alert.visible = false
     }
 }

@@ -216,6 +216,7 @@ ScrollView{
         backend.getUpdated();
         // always visible
         window.header.visible = true;
+        alert.visible = false
     }
 }
 

@@ -5,6 +5,7 @@ import QtMultimedia 5.0
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.4
 import QtQuick.Controls.Material 2.15
+import QtQuick.Dialogs 1.1
 
 ApplicationWindow{
     id: window
@@ -36,6 +37,7 @@ ApplicationWindow{
 
     Component.onCompleted: {
         backend.setStartup();
+        alert.visible = false
         //main.push("Home.qml");
     }
 
@@ -59,5 +61,31 @@ ApplicationWindow{
             }
 
         }  
+
+        function onAlert(msg){
+            alert.message = msg
+            alert.visible = true
+        }
+    }
+
+    Rectangle{
+        id: alert
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.margins: 25
+        height: 50
+        width: 750
+        color: "#b71c1c"
+        property alias message: alert_msg.text
+
+        Text {
+            id: alert_msg
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            text: "HELLO ALERT WORLD"
+            font.pointSize: 12
+            color: "#ff8a80"
+        }
+        visible:false
     }
 }

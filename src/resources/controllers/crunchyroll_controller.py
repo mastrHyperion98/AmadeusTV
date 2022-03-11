@@ -101,8 +101,8 @@ class CrunchyrollController(QObject):
     #use json string emit all episodes
     getEpisodes = Signal(str)
     getCollections = Signal(str)
-
     searching = Signal()
+    alert = Signal(str)
 
 
     @Slot()
@@ -136,7 +136,7 @@ class CrunchyrollController(QObject):
             self.settings.store.sync()
             self.login.emit(True)
         except Exception as ex:
-            print(ex)
+            self.alert.emit("Login Error: Invalid email and password combination !")
 
     @Slot()
     def getSimulcast(self):
@@ -297,7 +297,10 @@ class CrunchyrollController(QObject):
     @Slot()
     def getCurrent(self):
         episode = self.playlist[self.current]
-        episode.getStream(self.crunchyroll)
+        try:
+            episode.getStream(self.crunchyroll)
+        except Exception as ex:
+            self.alert.emit("Error loading video stream - may not have access to this content !")
 
         self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
@@ -309,7 +312,11 @@ class CrunchyrollController(QObject):
             self.current += 1
 
         episode = self.playlist[self.current]
-        episode.getStream(self.crunchyroll)
+
+        try:
+            episode.getStream(self.crunchyroll)
+        except Exception as ex:
+            self.alert.emit("Error loading video stream - may not have access to this content !")
 
         self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
@@ -320,7 +327,10 @@ class CrunchyrollController(QObject):
             self.current -= 1
         
         episode = self.playlist[self.current]
-        episode.getStream(self.crunchyroll)
+        try:
+            episode.getStream(self.crunchyroll)
+        except Exception as ex:
+            self.alert.emit("Error loading video stream - may not have access to this content !")
 
         self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)

@@ -231,5 +231,6 @@ Rectangle{
 
     Component.onCompleted: {
         backend.fetchCollections(series_id)
+        alert.visible = false
     }
 }
