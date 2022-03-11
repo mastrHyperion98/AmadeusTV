@@ -4,6 +4,8 @@ from m3u8 import Playlist
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 import json
+import shelve
+import os
 
 def combine_string(delimeter, strings):
     combined = ""
@@ -18,6 +20,43 @@ def combine_string(delimeter, strings):
     return combined
 
 
+class ApplicationSettings():
+    def __init__(self):
+        self.init_store()
+
+    def init_store(self):
+        if os.path.isfile('app.dat'):
+            # File exists
+            self.store = shelve.open('app.dat')
+
+        else:
+            store = shelve.open('app.dat')
+            store['remember_me'] = False
+            store['email'] = None
+            store['password'] = None
+            store['isLogin'] = False
+
+            self.store = store
+    
+    def getRememberMe(self):
+        return self.store['remember_me']
+
+    def isLogin(self):
+        return self.store['isLogin']
+    
+    def setRememberMe(self, val):
+        self.store['remember_me'] = val
+
+    def setIsLogin(self, val):
+       self.store['isLogin'] = val
+
+    def setPassword(self, password):
+        self.store['password'] = password
+
+    def setEmail(self, email):
+        self.store['email'] = email
+
+
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
         QObject.__init__(self)
@@ -25,7 +64,10 @@ class CrunchyrollController(QObject):
 
         self.crunchyroll = CrunchyrollServer()
         self.crunchyroll.create_session()
-        self.crunchyroll.login("steven.smith1998@hotmail.com", "Panther98@123")
+        self.settings = ApplicationSettings()
+        if self.settings.isLogin():
+            self.crunchyroll.login()
+
         self.limit = 10
 
         self.playlist = []
@@ -45,12 +87,43 @@ class CrunchyrollController(QObject):
     addQueue = Signal(str, str)
 
     addSearch = Signal(str, str)
-
+    startup = Signal(str)
+    login = Signal(bool)
     #use json string emit all episodes
     getEpisodes = Signal(str)
     getCollections = Signal(str)
 
     searching = Signal()
+
+
+    @Slot()
+    def setStartup(self):
+        is_logged_in = self.settings.isLogin()
+        is_remember_me = self.settings.getRememberMe()
+
+        data = {"login": is_logged_in, 
+                    "is_remember_me": is_remember_me}
+
+        json_data = json.dumps(data)
+        self.startup.emit(json_data)
+        
+    @Slot(bool)
+    def setRememberMe(self, val):
+        self.settings.setRememberMe(val)
+        self.settings.store.sync()
+
+    # Maybe do some decoding so that values can't be intercepted
+    @Slot(str, str)
+    def setLogin(self, email, password):
+        try:
+            self.crunchyroll.login(email, password)
+            self.settings.setEmail(email)
+            self.settings.setPassword(password)
+            self.settings.setIsLogin(True)
+            self.settings.store.sync()
+            self.login.emit(True)
+        except Exception as ex:
+            print(ex)
 
     @Slot()
     def getSimulcast(self):
