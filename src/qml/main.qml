@@ -62,12 +62,24 @@ ApplicationWindow{
         }  
     }
 
-    MessageDialog {
+    Rectangle{
         id: alert
-        title: "Alert"
-        onAccepted: {
-            close();
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.margins: 25
+        height: 50
+        width: 500
+        color: "#b71c1c"
+        property alias message: alert_msg.text
+
+        Text {
+            id: alert_msg
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            text: "HELLO ALERT WORLD"
+            font.pointSize: 12
+            color: "#ff8a80"
         }
-        Component.onCompleted: visible = false
+        visible:false
     }
 }

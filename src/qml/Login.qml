@@ -96,12 +96,14 @@ Rectangle{
         function onLogin(success){
             if(success){
                 main.replace("Home.qml");
+                alert.message = "";
+                alert.visible = false;
             }
             else{
                 // show alert
                 var message = "Login Error: Invalid email and password combination!"
-                alert.text = message
-                alert.open();
+                alert.message = message;
+                alert.visible = true;
             }
         }
 
