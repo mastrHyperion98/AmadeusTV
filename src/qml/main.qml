@@ -37,6 +37,7 @@ ApplicationWindow{
 
     Component.onCompleted: {
         backend.setStartup();
+        alert.visible = false
         //main.push("Home.qml");
     }
 
@@ -60,6 +61,11 @@ ApplicationWindow{
             }
 
         }  
+
+        function onAlert(msg){
+            alert.message = msg
+            alert.visible = true
+        }
     }
 
     Rectangle{
@@ -68,7 +74,7 @@ ApplicationWindow{
         anchors.top: parent.top
         anchors.margins: 25
         height: 50
-        width: 500
+        width: 750
         color: "#b71c1c"
         property alias message: alert_msg.text
 

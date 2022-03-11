@@ -87,6 +87,7 @@ Rectangle{
 
     Component.onCompleted: {
         window.header.visible = !firstStart;
+        alert.visible = false
     }
 
 
@@ -98,12 +99,6 @@ Rectangle{
                 main.replace("Home.qml");
                 alert.message = "";
                 alert.visible = false;
-            }
-            else{
-                // show alert
-                var message = "Login Error: Invalid email and password combination!"
-                alert.message = message;
-                alert.visible = true;
             }
         }
 
