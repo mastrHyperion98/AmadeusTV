@@ -35,8 +35,8 @@ ApplicationWindow{
     }
 
     Component.onCompleted: {
-        main.push("Home.qml")
         backend.setStartup();
+        //main.push("Home.qml");
     }
 
 

@@ -4,6 +4,8 @@ from m3u8 import Playlist
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 import json
+import shelve
+import os
 
 def combine_string(delimeter, strings):
     combined = ""
@@ -71,7 +73,10 @@ class CrunchyrollController(QObject):
 
         self.crunchyroll = CrunchyrollServer()
         self.crunchyroll.create_session()
-        self.crunchyroll.login("steven.smith1998@hotmail.com", "Panther98@123")
+        self.settings = ApplicationSettings()
+        if self.settings.isLogin():
+            self.crunchyroll.login()
+
         self.limit = 10
 
         self.playlist = []
@@ -91,7 +96,8 @@ class CrunchyrollController(QObject):
     addQueue = Signal(str, str)
 
     addSearch = Signal(str, str)
-
+    startup = Signal(str)
+    login = Signal(bool)
     #use json string emit all episodes
     getEpisodes = Signal(str)
     getCollections = Signal(str)
