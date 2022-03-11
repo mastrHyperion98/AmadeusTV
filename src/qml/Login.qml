@@ -12,6 +12,7 @@ Rectangle{
     height: parent.height
     width: 1280
     color: Material.background
+    
 
     Image{
         id: crunchy_logo
@@ -30,6 +31,9 @@ Rectangle{
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         placeholderText: qsTr("email")
+        onAccepted: {
+            submitLogin();
+        }
     }   
 
     TextField {
@@ -39,6 +43,9 @@ Rectangle{
         anchors.top: email_field.bottom
         anchors.margins: 25
         echoMode: TextInput.Password
+        onAccepted: {
+            submitLogin();
+        }
 
         placeholderText: qsTr("password")
     }
@@ -78,10 +85,7 @@ Rectangle{
         text: "Login"
 
         onClicked: {
-            var email = email_field.text;
-            var password = password_field.text;
-            if(email != "" & password != "")
-                backend.setLogin(email, password);
+            submitLogin();
         }
     }
 
@@ -90,6 +94,12 @@ Rectangle{
         alert.visible = false
     }
 
+    function submitLogin(){
+        var email = email_field.text;
+        var password = password_field.text;
+        if(email != "" & password != "")
+            backend.setLogin(email, password);        
+    }
 
     Connections {
         target: backend
