@@ -18,6 +18,52 @@ def combine_string(delimeter, strings):
     return combined
 
 
+class ApplicationSettings():
+    def __init__(self):
+        self.init_store()
+
+    def init_store(self):
+        if os.path.isfile('app.dat'):
+            # File exists
+            self.store = shelve.open('app.dat')
+
+        else:
+            store = shelve.open('app.dat')
+            store['remember_me'] = False
+            store['email'] = None
+            store['password'] = None
+            store['isLogin'] = False
+            store['isFirstTime'] = True
+
+            self.store = store
+    
+    def getRememberMe(self):
+        return self.store['remember_me']
+
+    def isLogin(self):
+        return self.store['isLogin']
+
+    def isFirstTime(self):
+        return self.store['isFirstTime']
+    
+    def setRememberMe(self, val):
+        self.store['remember_me'] = val
+
+    def setIsLogin(self, val):
+       self.store['isLogin'] = val
+
+    def setPassword(self, password):
+        self.store['password'] = password
+
+    def setEmail(self, email):
+        self.store['email'] = email
+
+    def setFirstTime(self, var):
+        self.store['isFirstTime'] = var
+
+    
+
+
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
         QObject.__init__(self)
@@ -51,6 +97,40 @@ class CrunchyrollController(QObject):
     getCollections = Signal(str)
 
     searching = Signal()
+
+
+    @Slot()
+    def setStartup(self):
+        is_logged_in = self.settings.isLogin()
+        is_remember_me = self.settings.getRememberMe()
+        is_first_time = self.settings.isFirstTime()
+
+        data = {"login": is_logged_in, 
+                "is_remember_me": is_remember_me,
+                "first_time": is_first_time}
+
+        json_data = json.dumps(data)
+        self.startup.emit(json_data)
+        
+    @Slot(bool)
+    def setRememberMe(self, val):
+        self.settings.setRememberMe(val)
+        self.settings.store.sync()
+
+    # Maybe do some decoding so that values can't be intercepted
+    @Slot(str, str)
+    def setLogin(self, email, password):
+        try:
+            self.crunchyroll.login(email, password)
+            self.settings.setEmail(email)
+            self.settings.setPassword(password)
+            self.settings.setIsLogin(True)
+            if self.settings.isFirstTime():
+                self.settings.setFirstTime(False)
+            self.settings.store.sync()
+            self.login.emit(True)
+        except Exception as ex:
+            print(ex)
 
     @Slot()
     def getSimulcast(self):
