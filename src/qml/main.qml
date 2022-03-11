@@ -5,6 +5,7 @@ import QtMultimedia 5.0
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.4
 import QtQuick.Controls.Material 2.15
+import QtQuick.Dialogs 1.1
 
 ApplicationWindow{
     id: window
@@ -59,5 +60,14 @@ ApplicationWindow{
             }
 
         }  
+    }
+
+    MessageDialog {
+        id: alert
+        title: "Alert"
+        onAccepted: {
+            close();
+        }
+        Component.onCompleted: visible = false
     }
 }

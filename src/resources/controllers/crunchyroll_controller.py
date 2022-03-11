@@ -136,7 +136,7 @@ class CrunchyrollController(QObject):
             self.settings.store.sync()
             self.login.emit(True)
         except Exception as ex:
-            print(ex)
+            self.login.emit(False)
 
     @Slot()
     def getSimulcast(self):
