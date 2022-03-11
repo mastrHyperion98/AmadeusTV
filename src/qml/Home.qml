@@ -214,6 +214,8 @@ ScrollView{
     Component.onCompleted: {
         backend.getSimulcast();
         backend.getUpdated();
+        // always visible
+        window.header.visible = true;
     }
 }
 

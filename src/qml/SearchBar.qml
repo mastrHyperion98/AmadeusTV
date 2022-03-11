@@ -11,6 +11,7 @@ ToolBar {
     TextField {
         id: search_text
         width: 300
+        padding: 15
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
 
@@ -37,7 +38,6 @@ ToolBar {
         onAccepted: doSearch(search_text.text)
         color: Material.primary
         placeholderTextColor: Material.primary
-        horizontalAlignment: TextInput.AlignHCenter
         cursorDelegate: Rectangle {
             visible: search_text.cursorVisible
             color: Material.primary

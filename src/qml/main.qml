@@ -15,6 +15,9 @@ ApplicationWindow{
     visible: true
     property var isSearching: false
     property var allowReturn: false
+    property bool isLoggedIn: false
+    property var isRememberMe: false
+    property var firstStart: true
 
     Material.theme: Material.Dark
     Material.accent: "#DD2C00"
@@ -32,6 +35,29 @@ ApplicationWindow{
     }
 
     Component.onCompleted: {
-        main.push("Home.qml")
+        backend.setStartup();
+        //main.push("Home.qml");
+    }
+
+
+    Connections {
+        target: backend
+
+        function onStartup(settings) {
+            var data = JSON.parse(settings);
+            
+            isLoggedIn = data.login;
+            isRememberMe = data.is_remember_me;
+            firstStart = data.first_time;
+
+            if(isLoggedIn){
+                console.log(isLoggedIn);
+                main.push("Home.qml");
+            }
+            else{
+                main.push("Login.qml");
+            }
+
+        }  
     }
 }
