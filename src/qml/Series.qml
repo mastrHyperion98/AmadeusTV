@@ -81,7 +81,7 @@ Rectangle{
                 anchors.left: parent.left
                 anchors.margins: 30
                 anchors.verticalCenter: parent.verticalCenter
-                width: 200
+                width: 225
                 height: 325
             }
 
