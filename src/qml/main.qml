@@ -66,27 +66,52 @@ ApplicationWindow{
         function onAlert(msg){
             alert.message = msg
             alert.visible = true
+            alert.startAnim();
         }
     }
 
     Rectangle{
         id: alert
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.margins: 25
+        x: (parent.width / 2) - (width/2)
+        y: 25
         height: 50
         width: 750
         color: "#b71c1c"
         property alias message: alert_msg.text
 
+        SequentialAnimation {
+            id: anim
+            NumberAnimation { target: alert; property: "x"; to: alert.x - 25; duration: 10}
+            NumberAnimation { target: alert; property: "x"; to: alert.x + 25; duration: 10}
+            NumberAnimation { target: alert; property: "x"; to: alert.x; duration: 10}
+        }
+
+        ImageButton{
+            id: exit_button
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            imageSource: "../assets/close_button_white.png"
+            onClicked: {
+               alert.visible = false
+            }
+        }
+
         Text {
             id: alert_msg
             anchors.horizontalCenter: parent.horizontalCenter
+            anchors.right: exit_button.left
+            anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
-            text: "HELLO ALERT WORLD"
+            text: ""
             font.pointSize: 12
             color: "#ff8a80"
+            wrapMode: Text.WordWrap
         }
-        visible:false
+        visible: true
+
+        function startAnim(){
+            anim.restart();
+        }
     }
 }

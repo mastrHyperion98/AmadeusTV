@@ -91,7 +91,7 @@ Rectangle{
 
     Component.onCompleted: {
         window.header.visible = !firstStart;
-        alert.visible = false
+        alert.visible = true
     }
 
     function submitLogin(){
@@ -110,7 +110,10 @@ Rectangle{
                 alert.message = "";
                 alert.visible = false;
             }
+            else{
+                email_field.text = "";
+                password_field.text = "";
+            }
         }
-
     }
 }

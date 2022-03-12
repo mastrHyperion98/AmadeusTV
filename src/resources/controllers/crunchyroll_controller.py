@@ -136,6 +136,8 @@ class CrunchyrollController(QObject):
             self.settings.store.sync()
             self.login.emit(True)
         except Exception as ex:
+            print(ex)
+            self.login.emit(False)
             self.alert.emit("Login Error: Invalid email and password combination !")
 
     @Slot()
