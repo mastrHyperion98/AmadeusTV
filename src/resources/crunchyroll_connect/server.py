@@ -396,3 +396,39 @@ class CrunchyrollServer:
 
         else:
             raise ValueError('Request Failed!\n\n{}'.format(response))
+
+    @session_required
+    def search(self, q, media_type, filter=None, limit=10, offset=0):
+        url = self.get_url(RequestType.AUTOCOMPLETE)
+
+        data = {
+            'session_id': self.settings.store['session_id'],
+            'device_type': self.device_type,
+            'device_id': self.settings.store['device_id'],
+            'media_types': media_type,
+            'q': q,
+            'limit': limit,
+            'offset': offset,
+            'filter': filter
+        }
+
+        response = self.session.get(url, params=data, cookies=self.session.cookies).json()
+
+        if validate_request(response):
+            series = []
+
+            for el in response['data']:
+                series.append(Series(
+                    series_id=el['series_id'],
+                    etp_guid=el['etp_guid'],
+                    name=el['name'],
+                    description=el['description'],
+                    url=el['url'],
+                    landscape_image=el['landscape_image'],
+                    portrait_image=el['portrait_image'],
+                ))
+
+            return series
+
+        else:
+            raise ValueError('Request Failed!\n\n{}'.format(response))

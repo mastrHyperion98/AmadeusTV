@@ -185,8 +185,8 @@ class CrunchyrollController(QObject):
 
 
     @Slot(str)
-    def search(self, prefix):
-        simulcast = self.crunchyroll.filter_series(limit=100, offset=0, filter_type = Filters.PREFIX, filter_tag=prefix)
+    def search(self, q):
+        simulcast = self.crunchyroll.search(q, 'anime', limit=100)
         self.searching.emit()
         for series in simulcast: 
             img = series.landscape_image['full_url']
