@@ -47,7 +47,9 @@ ScrollView{
                     id: image
                     source: icon
                     clip: true
-
+                    width: 640
+                    height: 320
+                    
                     Rectangle{
                         id: backdrop
                         color: Material.background
