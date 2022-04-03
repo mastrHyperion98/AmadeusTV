@@ -23,10 +23,13 @@ Rectangle{
 
     Component {
         id: delegate
+        
+
         Column {
             id: wrapper
             padding: 10
             anchors.horizontalCenter: parent.horizontalCenter
+            property alias state: episode.state
             Episode{
                 id: episode
                 thumbnail: icon
@@ -41,17 +44,6 @@ Rectangle{
                         main.push("Player.qml");
                         allowReturn = true;
                     } 
-                }
-                Connections {
-                    target: backend
-                    function onSetWatched(id) {
-                        console.log("CALLED")
-                        if(id == media_id){
-                            console.log("on set watched");
-                            episode.state = "WATCHED"
-                            console.log(episode.state);
-                        }
-                    }
                 }
             }
         }
@@ -241,6 +233,15 @@ Rectangle{
                 collection_model.append({"name": name, "series_id": series_id, "collection_id": colletion_id});
             }
         } 
+        function onSetWatched(id) {
+            for(let i=0; i < episode_model.count; i++){
+                var ep = episode_model.get(i);
+                if(id == ep.media_id){
+                    var episode_i = episode_views.itemAtIndex(i);
+                    episode_i.state = "WATCHED";
+                }
+            }
+        }
     }
 
     Component.onCompleted: {
