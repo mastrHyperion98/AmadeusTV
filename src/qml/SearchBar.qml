@@ -47,20 +47,48 @@ ToolBar {
             radius: 15
             color: Material.background
         }
-    }   
+    }  
 
     ImageButton{
-        id: menu_button
-        anchors.right: parent.right
+        id: explore_button
+        anchors.right: setting_button.left
         anchors.verticalCenter: parent.verticalCenter
-        anchors.rightMargin: 10
-        imageSource: "../assets/menu.png"
+        anchors.rightMargin: 20
+        imageSource: "../assets/explore.png"
         //checkable: true
         onClicked: {
-            if(sliding_menu.state == "HIDDEN")
-                sliding_menu.state = "VISIBLE"
-            else
-                sliding_menu.state = "HIDDEN"
+            //isLoggedIn = !isLoggedIn
+        }
+    }
+
+    ImageButton{
+        id: setting_button
+        anchors.right: login_button.left
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: 20
+        imageSource:  "../assets/settings.png"
+        //checkable: true
+        onClicked: {
+            //isLoggedIn = !isLoggedIn
+        }
+    }
+
+    ImageButton{
+        id: login_button
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: 20
+        imageSource: isLoggedIn? "../assets/logout.png" : "../assets/login.png"
+        //checkable: true
+        onClicked: {
+            if(isLoggedIn){
+                backend.cr_logout();
+            }
+            else{
+               // backend.startSession();
+                backend.setStartup();
+                main.replace("Login.qml");
+            }
         }
     }
 
@@ -86,6 +114,11 @@ ToolBar {
         visible: allowReturn
     }
 
+    SlidingMenu{
+        id: sliding_menu
+        anchors.top: parent.bottom
+    }
+
     function doSearch(text){
         if(!isSearching){
             main.push("SearchResult.qml");
@@ -96,6 +129,14 @@ ToolBar {
         if(shouldSearch){
             backend.search(text);
             shouldSearch = false;
+        }
+    }
+
+    Connections {
+        target: backend
+
+        function onLogout(){
+            isLoggedIn =  !isLoggedIn;
         }
     }
 }

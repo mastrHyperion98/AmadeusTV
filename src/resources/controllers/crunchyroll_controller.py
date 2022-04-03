@@ -1,3 +1,4 @@
+from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
 from m3u8 import Playlist
 
@@ -98,6 +99,8 @@ class CrunchyrollController(QObject):
     addSearch = Signal(str, str)
     startup = Signal(str)
     login = Signal(bool)
+    logout = Signal()
+    getRememberMe = Signal(str,str)
     #use json string emit all episodes
     getEpisodes = Signal(str)
     getCollections = Signal(str)
@@ -110,10 +113,13 @@ class CrunchyrollController(QObject):
         is_logged_in = self.settings.isLogin()
         is_remember_me = self.settings.getRememberMe()
         is_first_time = self.settings.isFirstTime()
+        email = self.settings.store['email']
+        password = self.settings.store['password']
 
         data = {"login": is_logged_in, 
                 "is_remember_me": is_remember_me,
-                "first_time": is_first_time}
+                "first_time": is_first_time,
+                }
 
         json_data = json.dumps(data)
         self.startup.emit(json_data)
@@ -122,6 +128,16 @@ class CrunchyrollController(QObject):
     def setRememberMe(self, val):
         self.settings.setRememberMe(val)
         self.settings.store.sync()
+
+    @Slot()
+    def getCreds(self):
+        email = self.settings.store['email']
+        password = self.settings.store['password']
+        self.getRememberMe.emit(email,password)
+
+    @Slot()
+    def startSession(self):
+        self.crunchyroll.create_session()
 
     # Maybe do some decoding so that values can't be intercepted
     @Slot(str, str)
@@ -139,6 +155,13 @@ class CrunchyrollController(QObject):
             print(ex)
             self.login.emit(False)
             self.alert.emit("Login Error: Invalid email and password combination !")
+
+    @Slot()
+    def cr_logout(self):
+        print("LOGOUT")
+        self.crunchyroll.logout()
+        self.settings.setIsLogin(False)
+        self.logout.emit()
 
     @Slot()
     def getSimulcast(self):

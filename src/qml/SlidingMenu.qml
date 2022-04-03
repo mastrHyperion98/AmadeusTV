@@ -7,7 +7,7 @@ import QtGraphicalEffects 1.4
 
 Rectangle{
     id: menu
-    height: parent.height
+    height: window.height
     width: 300
     color: Material.background
     x: parent.width + 10
@@ -43,13 +43,28 @@ Rectangle{
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: settings.bottom
         anchors.margins: 15
-        text: isLoggedIn ? "Logout": "Login"
+        text: "Logout"
         width: 200
         font.pointSize: 18
         font.capitalization: Font.MixedCase
-       // onClicked: model.submit()
-    }
+        
+        onClicked: {
+            if(isLoggedIn){
+                text = "Login";
+                //backend.cr_logout();
+                //sliding_menu.state = "HIDDEN";
+                
 
+            }
+            else{
+                text = "Logout";
+                //backend.startSession();
+                //main.replace("Login.qml");
+                //sliding_menu.state = "HIDDEN";
+            }
+
+        }
+    }
 
     states: [
         State {
@@ -81,5 +96,15 @@ Rectangle{
         spread: 0.60
         color: Material.accent
         source: menu
+    }
+
+    Connections {
+        target: backend
+
+        function onLogout(){
+            window.update();
+            isLoggedIn =  false;
+            sliding_menu.state = "HIDDEN";
+        }
     }
 }

@@ -34,10 +34,7 @@ ApplicationWindow{
     StackView{
         id: main
         anchors.fill: parent
-    }
-
-    SlidingMenu{
-        id: sliding_menu
+    
     }
     
     Component.onCompleted: {
@@ -65,7 +62,6 @@ ApplicationWindow{
             }
 
         }  
-
         function onAlert(msg){
             alert.message = msg
             alert.visible = true
