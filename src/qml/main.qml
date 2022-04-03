@@ -36,10 +36,13 @@ ApplicationWindow{
         anchors.fill: parent
     }
 
+    SlidingMenu{
+        id: sliding_menu
+    }
+    
     Component.onCompleted: {
         backend.setStartup();
         alert.visible = false
-        //main.push("Home.qml");
     }
 
 
