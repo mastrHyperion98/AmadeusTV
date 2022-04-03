@@ -82,11 +82,15 @@ ToolBar {
         //checkable: true
         onClicked: {
             if(isLoggedIn){
+                main.clear();
+                main.replace("Home.qml");
                 backend.cr_logout();
+                
             }
             else{
                // backend.startSession();
                 backend.setStartup();
+                main.clear();
                 main.replace("Login.qml");
             }
         }

@@ -89,12 +89,10 @@ class ApplicationSettings():
             req = session.get(url, params=data)
             content = req.json()
 
-            print(req)
             if req.status_code == 200:
                 self.completion = json.loads(content['collections'])
-            
-            print(self.completion)
 
+            print(self.completion)
             session.close()
 
     def addViewHistory(self, episode):
@@ -228,8 +226,11 @@ class CrunchyrollController(QObject):
 
     @Slot()
     def cr_logout(self):
-        print("LOGOUT")
+        self.settings.updateS3Log()
         self.crunchyroll.logout()
+        self.settings.completion = {}
+        self.settings.view_history = []
+        self.settings.setUserId(None)
         self.settings.setIsLogin(False)
         self.logout.emit()
 
