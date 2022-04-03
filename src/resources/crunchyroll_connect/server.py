@@ -309,7 +309,6 @@ class CrunchyrollServer:
         else:
             raise ValueError('Request Failed!\n\n{}'.format(response))
 
-    @login_required
     @session_required
     def get_episodes(self, collection_id, limit=1000, offset=0):
         url = self.get_url(RequestType.LIST_MEDIA)

@@ -90,8 +90,11 @@ Rectangle{
     }
 
     Component.onCompleted: {
-        window.header.visible = !firstStart;
-        alert.visible = true
+        window.header.visible = false;
+        alert.visible = false;
+
+        if(isRememberMe)
+            backend.getCreds();
     }
 
     function submitLogin(){
@@ -109,11 +112,16 @@ Rectangle{
                 main.replace("Home.qml");
                 alert.message = "";
                 alert.visible = false;
+                isLoggedIn = true;
             }
             else{
                 email_field.text = "";
                 password_field.text = "";
             }
+        }
+        function onGetRememberMe(email, password){
+            email_field.text = email;
+            password_field.text = password;
         }
     }
 }

@@ -61,7 +61,7 @@ class Config:
         if self.store is None:
             self.init_store()
 
-        self.store['session_id'] = ""
+        #self.store['session_id'] = ""
         self.store['account'] = ""
         self.store['password'] = ""
         self.store['user'] = None
