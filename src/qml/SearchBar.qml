@@ -57,7 +57,10 @@ ToolBar {
         imageSource: "../assets/menu.png"
         //checkable: true
         onClicked: {
-            console.log("print menu")
+            if(sliding_menu.state == "HIDDEN")
+                sliding_menu.state = "VISIBLE"
+            else
+                sliding_menu.state = "HIDDEN"
         }
     }
 

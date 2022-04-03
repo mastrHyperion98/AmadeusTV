@@ -77,7 +77,7 @@ class CrunchyrollController(QObject):
         if self.settings.isLogin():
             self.crunchyroll.login()
 
-        self.limit = 10
+        self.limit = 20
 
         self.playlist = []
         self.current = 0
