@@ -31,6 +31,7 @@ Rectangle{
                 thumbnail: icon
                 episode_name: name
                 episode_number: number
+                isWatched: is_watched
 
                 MouseArea{
                     anchors.fill: parent
@@ -209,10 +210,11 @@ Rectangle{
                 var ep_num = data[i].episode_number;
                 var icon = data[i].thumbnail;
                 var media_id = data[i].media_id;
-                var colletion_id = data[i].collection_id
+                var collection_id = data[i].collection_id
+                var isWatched = data[i].isWatched
 
-                backend.addMediaToPlaylist(media_id, name, ep_num)
-                episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
+                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id)
+                episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id, "is_watched": isWatched});
             }
         }
         function onGetCollections(data) {

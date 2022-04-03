@@ -1,10 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
-import QtMultimedia 5.0
 import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.4
 import QtQuick.Controls.Material 2.15
+import QtGraphicalEffects 1.4
+
 
 Rectangle{
     id: root
@@ -12,6 +12,7 @@ Rectangle{
     property var episode_id: ""
     property var episode_name: ""
     property var episode_number: 0
+    property var isWatched: false
     property alias nameColor: episode_name_id.color
 
     width: 750
@@ -43,6 +44,26 @@ Rectangle{
             anchors.fill: parent
             anchors.margins: 10
             
+        }
+        Item{
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            width: 64
+            height: 64
+            visible: isWatched
+
+            Image {
+                id: image_complete
+                source: "../assets/check_circle.png"
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                clip: true
+            }
+            ColorOverlay {
+                anchors.fill: image_complete
+                source: image_complete
+                color: Material.primary
+            }
         }
     }
 

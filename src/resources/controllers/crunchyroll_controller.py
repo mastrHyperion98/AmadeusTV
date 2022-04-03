@@ -2,11 +2,14 @@ from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
 from m3u8 import Playlist
 
+from resources.crunchyroll_connect.utils import user
+
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 import json
 import shelve
 import os
+import requests
 
 def combine_string(delimeter, strings):
     combined = ""
@@ -24,6 +27,10 @@ def combine_string(delimeter, strings):
 class ApplicationSettings():
     def __init__(self):
         self.init_store()
+        self.completion = {}
+        self.view_history = []
+
+        self.init_completion()
 
     def init_store(self):
         if os.path.isfile('app.dat'):
@@ -36,8 +43,9 @@ class ApplicationSettings():
             store['email'] = None
             store['password'] = None
             store['isLogin'] = False
+            store['user_id'] = None
             store['isFirstTime'] = True
-
+            # Both view history and completion will fetch from Amazon where data is stored by the cr user i
             self.store = store
     
     def getRememberMe(self):
@@ -64,8 +72,68 @@ class ApplicationSettings():
     def setFirstTime(self, var):
         self.store['isFirstTime'] = var
 
-    
+    def setUserId(self, id):
+        self.store['user_id'] = id
 
+    def init_completion(self):
+        if self.store['user_id'] is not None:
+            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+            session = requests.Session()
+
+            user_id=str(self.store['user_id'])
+
+            data = {
+                'user_id': user_id
+            }
+
+            req = session.get(url, params=data)
+            content = req.json()
+
+            print(req)
+            if req.status_code == 200:
+                self.completion = json.loads(content['collections'])
+            
+            print(self.completion)
+
+            session.close()
+
+    def addViewHistory(self, episode):
+        self.view_history.append((episode.collection_id,episode.media_id))
+        # Write to S3 / AWS
+
+    def setCompleted(self, episode):
+        if episode.collection_id in self.completion:
+            if episode.media_id not in self.completion[episode.collection_id]:
+                self.completion[episode.collection_id].append(episode.media_id)
+                print(f'{episode.name} completed')
+                # Write to S3 / AWS
+        else: 
+            self.completion[episode.collection_id] = []
+            self.completion[episode.collection_id].append(episode.media_id)
+            print(f'{episode.name} completed')
+        
+        print(self.completion)
+    
+    def updateS3Log(self):
+        if self.store['user_id'] is not None:
+            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+            session = requests.Session()
+
+            user_id=str(self.store['user_id'])
+
+            data = {
+                'user_id': user_id,
+                'collections': self.completion
+            }
+
+            req = requests.put(url, json=data)
+            content = req.json()
+
+            if req.status_code == 200:
+                print("Pushed Completion records to AWS")
+
+            session.close()
+        
 
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
@@ -144,9 +212,13 @@ class CrunchyrollController(QObject):
     def setLogin(self, email, password):
         try:
             self.crunchyroll.login(email, password)
+            user_id = self.crunchyroll.settings.store['user'].user_id
             self.settings.setEmail(email)
             self.settings.setPassword(password)
             self.settings.setIsLogin(True)
+            self.settings.setUserId(user_id)
+            self.settings.init_completion()
+
             if self.settings.isFirstTime():
                 self.settings.setFirstTime(False)
             self.settings.store.sync()
@@ -265,8 +337,11 @@ class CrunchyrollController(QObject):
             series_id = episode.series_id
             thumbnail = episode.screenshot_image['large_url']
             media_id = episode.media_id
-            #stream_data = self.crunchyroll.get_media_stream(media_id)
-            #self.playlist.append(Episode(name, episode_number, stream_data))
+
+            isWatched = False
+            completion_list = self.settings.completion
+            if collection_id in completion_list and media_id in completion_list[collection_id]:
+                isWatched = True
 
             json_def = {
                 "name": name,
@@ -274,11 +349,10 @@ class CrunchyrollController(QObject):
                 "collection_id": collection_id,
                 "series_id": series_id,
                 "thumbnail": thumbnail,
-                "media_id": media_id
+                "media_id": media_id,
+                "isWatched": False
             }
             json_episodes.append(json_def)
-
-
 
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
@@ -296,22 +370,29 @@ class CrunchyrollController(QObject):
             thumbnail = episode.screenshot_image['large_url']
             media_id = episode.media_id
 
+            isWatched = False
+            completion_list = self.settings.completion
+            if collection_id in completion_list and media_id in completion_list[collection_id]:
+                isWatched = True
+
+
             json_def = {
                 "name": name,
                 "episode_number": episode_number,
                 "collection_id": collection_id,
                 "series_id": series_id,
                 "thumbnail": thumbnail,
-                "media_id": media_id
+                "media_id": media_id,
+                "isWatched": isWatched
             }
             json_episodes.append(json_def)
 
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
 
-    @Slot(str, str, str)
-    def addMediaToPlaylist(self, media_id, name, episode_num):
-        self.playlist.append(Episode(name, episode_num, media_id))
+    @Slot(str, str, str, str)
+    def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):
+        self.playlist.append(Episode(name, episode_num, media_id, collection_id))
 
     @Slot(int)
     def setPlaylistIndex(self, index):
@@ -322,6 +403,7 @@ class CrunchyrollController(QObject):
     @Slot()
     def getCurrent(self):
         episode = self.playlist[self.current]
+        self.settings.addViewHistory(episode)
         try:
             episode.getStream(self.crunchyroll)
         except Exception as ex:
@@ -330,13 +412,20 @@ class CrunchyrollController(QObject):
         self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
-
+    """
+    Get Next Fetches the next episode and marks the current episode as being completed. 
+    More granular control to the definition of completed may be introduced later. but for 
+    now simplicity is king. 
+    """
     @Slot()
     def getNext(self):
+        self.settings.setCompleted(self.playlist[self.current])
+        
         if 0<= self.current < len(self.playlist):
             self.current += 1
 
         episode = self.playlist[self.current]
+        self.settings.addViewHistory(episode)
 
         try:
             episode.getStream(self.crunchyroll)
@@ -352,6 +441,7 @@ class CrunchyrollController(QObject):
             self.current -= 1
         
         episode = self.playlist[self.current]
+        self.settings.addViewHistory(episode)
         try:
             episode.getStream(self.crunchyroll)
         except Exception as ex:
@@ -379,13 +469,16 @@ class CrunchyrollController(QObject):
     @Slot()
     def getLowest(self):
         self.setQuality.emit(self.playlist[self.current].stream[Quality.LOWEST.value].url)
-
+    
+    def updateHistory(self, current):
+        self.settings.addViewHistory(current.media_id)
 
 class Episode():
-    def __init__(self, name, episode_num, media_id):
+    def __init__(self, name, episode_num, media_id, collection_id):
         self.name = name
         self.episode_num = episode_num
         self.media_id = media_id
+        self.collection_id = collection_id
         self.stream_data = None
 
     def getStream(self, crunchyroll):

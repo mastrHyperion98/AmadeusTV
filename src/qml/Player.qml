@@ -601,7 +601,8 @@ Rectangle {
             setPlaybackPosition();
 
             if(player.duration > 0)
-                if(player.position == player.duration){
+                if(player.position >= player.duration){
+                    player.pause();
                     backend.getNext();
                     player.play();
                 }
@@ -613,7 +614,6 @@ Rectangle {
             if(player.status ==  MediaPlayer.Stalled){
                 player.pause();
                 console.log("Mediaplayer is stalled and is buffering");
-                
             }
 
             else if(player.status == MediaPlayer.Buffered){
