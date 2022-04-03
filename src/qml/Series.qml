@@ -28,10 +28,11 @@ Rectangle{
             padding: 10
             anchors.horizontalCenter: parent.horizontalCenter
             Episode{
+                id: episode
                 thumbnail: icon
                 episode_name: name
                 episode_number: number
-                isWatched: is_watched
+                state: is_watched? "WATCHED":"TOWATCH"
 
                 MouseArea{
                     anchors.fill: parent
@@ -40,6 +41,17 @@ Rectangle{
                         main.push("Player.qml");
                         allowReturn = true;
                     } 
+                }
+                Connections {
+                    target: backend
+                    function onSetWatched(id) {
+                        console.log("CALLED")
+                        if(id == media_id){
+                            console.log("on set watched");
+                            episode.state = "WATCHED"
+                            console.log(episode.state);
+                        }
+                    }
                 }
             }
         }
@@ -228,7 +240,7 @@ Rectangle{
 
                 collection_model.append({"name": name, "series_id": series_id, "collection_id": colletion_id});
             }
-        }    
+        } 
     }
 
     Component.onCompleted: {

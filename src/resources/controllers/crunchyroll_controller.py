@@ -77,7 +77,7 @@ class ApplicationSettings():
 
     def init_completion(self):
         if self.store['user_id'] is not None:
-            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
             session = requests.Session()
 
             user_id=str(self.store['user_id'])
@@ -105,12 +105,9 @@ class ApplicationSettings():
         if episode.collection_id in self.completion:
             if episode.media_id not in self.completion[episode.collection_id]:
                 self.completion[episode.collection_id].append(episode.media_id)
-                print(f'{episode.name} completed')
-                # Write to S3 / AWS
         else: 
             self.completion[episode.collection_id] = []
             self.completion[episode.collection_id].append(episode.media_id)
-            print(f'{episode.name} completed')
         
         print(self.completion)
     
@@ -174,6 +171,7 @@ class CrunchyrollController(QObject):
     getCollections = Signal(str)
     searching = Signal()
     alert = Signal(str)
+    setWatched = Signal(str)
 
 
     @Slot()
@@ -350,7 +348,7 @@ class CrunchyrollController(QObject):
                 "series_id": series_id,
                 "thumbnail": thumbnail,
                 "media_id": media_id,
-                "isWatched": False
+                "isWatched": isWatched
             }
             json_episodes.append(json_def)
 
@@ -420,6 +418,7 @@ class CrunchyrollController(QObject):
     @Slot()
     def getNext(self):
         self.settings.setCompleted(self.playlist[self.current])
+        self.setWatched.emit(self.playlist[self.current].media_id)
         
         if 0<= self.current < len(self.playlist):
             self.current += 1

@@ -12,12 +12,22 @@ Rectangle{
     property var episode_id: ""
     property var episode_name: ""
     property var episode_number: 0
-    property var isWatched: false
     property alias nameColor: episode_name_id.color
 
     width: 750
     height: 150
     color: Material.background
+
+    states: [
+        State {
+            name: "WATCHED"
+            PropertyChanges { target: completion_item; visible: true;}
+        },
+        State{
+            name: "TOWATCH"
+            PropertyChanges {target: completion_item; visible: false;}
+        }
+    ]
 
     Image {
         id: image
@@ -46,11 +56,12 @@ Rectangle{
             
         }
         Item{
+            id: completion_item
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             width: 64
             height: 64
-            visible: isWatched
+            //visible: isWatched
 
             Image {
                 id: image_complete
