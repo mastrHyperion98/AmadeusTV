@@ -1,3 +1,6 @@
 # Exlcude all venv files
 
 **/venv/**
+**/build/**
+**/__pycache__/**
+**/user
