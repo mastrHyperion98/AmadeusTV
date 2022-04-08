@@ -11,6 +11,7 @@ Rectangle {
     property bool isFullscreen: false
     property bool isSettingsOpen: false
     property int playback_position: 0
+    property bool isCompleted: false
 
 
     MouseArea {
@@ -132,6 +133,14 @@ Rectangle {
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
             onClicked: {
+                backend.setCurrentPlayback(player.position);
+                if(player.position / player.duration >= 0.90 & !isCompleted)
+                    backend.setCurrentCompleted(true);
+
+                for(var i=0; i < 1000; i++){
+                    continue; 
+                }
+                backend.logMedia();
                 backend.getNext();
             }
             anchors.left: play_button.left
@@ -606,6 +615,16 @@ Rectangle {
                     backend.getNext();
                     player.play();
                 }
+
+            if(player.position / player.duration >= 0.90 & !isCompleted){
+                backend.setCurrentCompleted(true);
+                isCompleted = true;
+            }
+            
+            var position_in_minutes = player.position * 1.666667e-5;
+            if(position_in_minutes > 0.05 & position_in_minutes % 3 <= 0 + (0.01 * player.playbackRate)){
+                backend.setCurrentPlayback(player.position);
+            } 
         }
 
         // check when media is stalled
@@ -613,12 +632,10 @@ Rectangle {
         function onStatusChanged(){
             if(player.status ==  MediaPlayer.Stalled){
                 player.pause();
-                console.log("Mediaplayer is stalled and is buffering");
             }
 
             else if(player.status == MediaPlayer.Buffered){
                 player.play();
-                console.log("Mediaplayer buffered was filled");
             }
         }
 
@@ -627,9 +644,11 @@ Rectangle {
         target: backend
         
         function onSetSource(source) {
+            isCompleted = false;
             playback_position = 0;
             player.source = source ;
             player.play()
+            backend.logMedia();
         }  
 
         function onSetHeader(name, number){

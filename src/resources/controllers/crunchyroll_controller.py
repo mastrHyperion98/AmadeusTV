@@ -92,7 +92,6 @@ class ApplicationSettings():
             if req.status_code == 200:
                 self.completion = json.loads(content['collections'])
 
-            print(self.completion)
             session.close()
 
     def addViewHistory(self, episode):
@@ -177,8 +176,6 @@ class CrunchyrollController(QObject):
         is_logged_in = self.settings.isLogin()
         is_remember_me = self.settings.getRememberMe()
         is_first_time = self.settings.isFirstTime()
-        email = self.settings.store['email']
-        password = self.settings.store['password']
 
         data = {"login": is_logged_in, 
                 "is_remember_me": is_remember_me,
@@ -389,6 +386,37 @@ class CrunchyrollController(QObject):
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
 
+    @Slot(int)
+    def setCurrentPlayback(self, playhead):
+        self.playlist[self.current].setPlayhead(playhead)
+    
+    @Slot(bool)
+    def setCurrentCompleted(self, completed):
+        self.playlist[self.current].setCompleted(completed)
+        self.settings.setCompleted(self.playlist[self.current])
+        self.setWatched.emit(self.playlist[self.current].media_id)
+
+    @Slot()
+    def logMedia(self):
+        url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+        user_id=str(self.settings.store['user_id'])
+
+        data = {
+            'user_id': user_id,
+            'collection_id': self.playlist[self.current].collection_id,
+            'episode_id': self.playlist[self.current].media_id,
+            'playhead': self.playlist[self.current].playhead,
+            'completed': self.playlist[self.current].completed
+        }
+
+        print(data)
+
+        req = requests.put(url, json=data)
+        content = req.json()
+
+        if req.status_code == 200:
+            print("LOGGED")
+
     @Slot(str, str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):
         self.playlist.append(Episode(name, episode_num, media_id, collection_id))
@@ -408,7 +436,8 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        print(episode.stream_data)
+        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     """
@@ -418,9 +447,6 @@ class CrunchyrollController(QObject):
     """
     @Slot()
     def getNext(self):
-        self.settings.setCompleted(self.playlist[self.current])
-        self.setWatched.emit(self.playlist[self.current].media_id)
-        
         if 0<= self.current < len(self.playlist):
             self.current += 1
 
@@ -432,7 +458,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -447,7 +473,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -474,17 +500,25 @@ class CrunchyrollController(QObject):
         self.settings.addViewHistory(current.media_id)
 
 class Episode():
-    def __init__(self, name, episode_num, media_id, collection_id):
+    def __init__(self, name, episode_num, media_id, collection_id, playhead=0, duration=0, completed = False):
         self.name = name
         self.episode_num = episode_num
         self.media_id = media_id
         self.collection_id = collection_id
+        self.playhead = playhead
+        self.completed = completed
         self.stream_data = None
+    
 
     def getStream(self, crunchyroll):
         if self.stream_data is None: 
-            stream_data = crunchyroll.get_media_stream(self.media_id)
-            self.stream = stream_data
+            self.stream_data = crunchyroll.get_media_stream(self.media_id)
+
+    def setPlayhead(self, playhead):
+        self.playhead = playhead
+
+    def setCompleted(self, completed):
+        self.completed = completed
 
 
 
