@@ -1,15 +1,10 @@
+import json
 from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
-from m3u8 import Playlist
-
 from resources.crunchyroll_connect.utils import user
-
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
-import json
-import shelve
-import os
-import requests
+from ..application_settings import ApplicationSettings
 
 def combine_string(delimeter, strings):
     combined = ""
@@ -23,111 +18,6 @@ def combine_string(delimeter, strings):
     
     return combined
 
-
-class ApplicationSettings():
-    def __init__(self):
-        self.init_store()
-        self.completion = {}
-        self.view_history = []
-
-        self.init_completion()
-
-    def init_store(self):
-        if os.path.isfile('app.dat'):
-            # File exists
-            self.store = shelve.open('app.dat')
-
-        else:
-            store = shelve.open('app.dat')
-            store['remember_me'] = False
-            store['email'] = None
-            store['password'] = None
-            store['isLogin'] = False
-            store['user_id'] = None
-            store['isFirstTime'] = True
-            # Both view history and completion will fetch from Amazon where data is stored by the cr user i
-            self.store = store
-    
-    def getRememberMe(self):
-        return self.store['remember_me']
-
-    def isLogin(self):
-        return self.store['isLogin']
-
-    def isFirstTime(self):
-        return self.store['isFirstTime']
-    
-    def setRememberMe(self, val):
-        self.store['remember_me'] = val
-
-    def setIsLogin(self, val):
-       self.store['isLogin'] = val
-
-    def setPassword(self, password):
-        self.store['password'] = password
-
-    def setEmail(self, email):
-        self.store['email'] = email
-
-    def setFirstTime(self, var):
-        self.store['isFirstTime'] = var
-
-    def setUserId(self, id):
-        self.store['user_id'] = id
-
-    def init_completion(self):
-        if self.store['user_id'] is not None:
-            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
-            session = requests.Session()
-
-            user_id=str(self.store['user_id'])
-
-            data = {
-                'user_id': user_id
-            }
-
-            req = session.get(url, params=data)
-            content = req.json()
-
-            if req.status_code == 200:
-                self.completion = json.loads(content['collections'])
-
-            session.close()
-
-    def addViewHistory(self, episode):
-        self.view_history.append((episode.collection_id,episode.media_id))
-        # Write to S3 / AWS
-
-    def setCompleted(self, episode):
-        if episode.collection_id in self.completion:
-            if episode.media_id not in self.completion[episode.collection_id]:
-                self.completion[episode.collection_id].append(episode.media_id)
-        else: 
-            self.completion[episode.collection_id] = []
-            self.completion[episode.collection_id].append(episode.media_id)
-        
-        print(self.completion)
-    
-    def updateS3Log(self):
-        if self.store['user_id'] is not None:
-            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
-            session = requests.Session()
-
-            user_id=str(self.store['user_id'])
-
-            data = {
-                'user_id': user_id,
-                'collections': self.completion
-            }
-
-            req = requests.put(url, json=data)
-            content = req.json()
-
-            if req.status_code == 200:
-                print("Pushed Completion records to AWS")
-
-            session.close()
-        
 
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
@@ -145,25 +35,18 @@ class CrunchyrollController(QObject):
         self.playlist = []
         self.current = 0
 
-    
+    #Signals
     setSource = Signal(str)
     setHeader = Signal(str, str)
     setQuality = Signal(str)
-
-    #Signals
     addSimulcast = Signal(str, str)
-
-    #Signals
     addUpdated = Signal(str, str)
-
     addQueue = Signal(str, str)
-
     addSearch = Signal(str, str)
     startup = Signal(str)
     login = Signal(bool)
     logout = Signal()
     getRememberMe = Signal(str,str)
-    #use json string emit all episodes
     getEpisodes = Signal(str)
     getCollections = Signal(str)
     searching = Signal()
@@ -210,7 +93,6 @@ class CrunchyrollController(QObject):
             self.settings.setPassword(password)
             self.settings.setIsLogin(True)
             self.settings.setUserId(user_id)
-            self.settings.init_completion()
 
             if self.settings.isFirstTime():
                 self.settings.setFirstTime(False)
@@ -325,6 +207,27 @@ class CrunchyrollController(QObject):
         json_episodes = []
         episodes = self.crunchyroll.get_episodes(default.collection_id)
 
+        # if self.settings.store['user_id'] is not None:
+        #         url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
+        #         session = requests.Session()
+
+        #         user_id=str(self.settings.store['user_id'])
+
+        #         data = {
+        #             'user_id': user_id,
+        #             'collection_id': default.collection_id
+        #         }
+
+        #         req = session.get(url, json=data)
+        #         content = req.json()
+        #         print("SQL QUERY!!!")
+        #         print(content)
+        #         if req.status_code == 200:
+        #             print("SQL QUERY!!!")
+        #             print(content)
+
+        #         session.close()
+
     
         for episode in episodes:
             name = episode.name
@@ -335,9 +238,6 @@ class CrunchyrollController(QObject):
             media_id = episode.media_id
 
             isWatched = False
-            completion_list = self.settings.completion
-            if collection_id in completion_list and media_id in completion_list[collection_id]:
-                isWatched = True
 
             json_def = {
                 "name": name,
@@ -358,6 +258,28 @@ class CrunchyrollController(QObject):
         self.playlist.clear()
         episodes = self.crunchyroll.get_episodes(collection_id)
         json_episodes = []
+
+        # if self.settings.store['user_id'] is not None:
+        #         url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
+        #         session = requests.Session()
+
+        #         user_id=str(self.settings.store['user_id'])
+
+        #         data = {
+        #             'user_id': user_id,
+        #             'collection_id': collection_id
+        #         }
+
+        #         req = session.get(url, json=data)
+        #         content = req.json()
+        #         print("SQL QUERY!!!")
+        #         print(content)
+        #         if req.status_code == 200:
+        #             print("SQL QUERY!!!")
+        #             print(content)
+
+        #         session.close()
+        
         for episode in episodes:
             name = episode.name
             episode_number = episode.episode_number
@@ -366,11 +288,7 @@ class CrunchyrollController(QObject):
             thumbnail = episode.screenshot_image['large_url']
             media_id = episode.media_id
 
-            isWatched = False
-            completion_list = self.settings.completion
-            if collection_id in completion_list and media_id in completion_list[collection_id]:
-                isWatched = True
-
+            isWatched = self.settings.is_completed(collection_id, media_id)
 
             json_def = {
                 "name": name,
@@ -393,29 +311,27 @@ class CrunchyrollController(QObject):
     @Slot(bool)
     def setCurrentCompleted(self, completed):
         self.playlist[self.current].setCompleted(completed)
-        self.settings.setCompleted(self.playlist[self.current])
         self.setWatched.emit(self.playlist[self.current].media_id)
 
     @Slot()
     def logMedia(self):
-        url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
-        user_id=str(self.settings.store['user_id'])
+        # url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+        # user_id=str(self.settings.store['user_id'])
 
-        data = {
-            'user_id': user_id,
-            'collection_id': self.playlist[self.current].collection_id,
-            'episode_id': self.playlist[self.current].media_id,
-            'playhead': self.playlist[self.current].playhead,
-            'completed': self.playlist[self.current].completed
-        }
+        # data = {
+        #     'user_id': user_id,
+        #     'collection_id': self.playlist[self.current].collection_id,
+        #     'episode_id': self.playlist[self.current].media_id,
+        #     'playhead': self.playlist[self.current].playhead,
+        #     'completed': self.playlist[self.current].completed
+        # }
 
-        print(data)
+        # req = requests.put(url, json=data)
 
-        req = requests.put(url, json=data)
-        content = req.json()
-
-        if req.status_code == 200:
-            print("LOGGED")
+        # if req.status_code == 200:
+        if self.playlist[self.current].completed:
+            self.settings.add_completed(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
+            print("Added to completed")
 
     @Slot(str, str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):
@@ -430,13 +346,12 @@ class CrunchyrollController(QObject):
     @Slot()
     def getCurrent(self):
         episode = self.playlist[self.current]
-        self.settings.addViewHistory(episode)
+        #self.settings.addViewHistory(episode)
         try:
             episode.getStream(self.crunchyroll)
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        print(episode.stream_data)
         self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
@@ -451,7 +366,7 @@ class CrunchyrollController(QObject):
             self.current += 1
 
         episode = self.playlist[self.current]
-        self.settings.addViewHistory(episode)
+        #self.settings.addViewHistory(episode)
 
         try:
             episode.getStream(self.crunchyroll)
@@ -467,7 +382,7 @@ class CrunchyrollController(QObject):
             self.current -= 1
         
         episode = self.playlist[self.current]
-        self.settings.addViewHistory(episode)
+        #self.settings.addViewHistory(episode)
         try:
             episode.getStream(self.crunchyroll)
         except Exception as ex:

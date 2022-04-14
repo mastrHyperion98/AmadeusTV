@@ -137,9 +137,6 @@ Rectangle {
                 if(player.position / player.duration >= 0.90 & !isCompleted)
                     backend.setCurrentCompleted(true);
 
-                for(var i=0; i < 1000; i++){
-                    continue; 
-                }
                 backend.logMedia();
                 backend.getNext();
             }
@@ -609,18 +606,23 @@ Rectangle {
                 seekControl.position = player.position;
             setPlaybackPosition();
 
-            if(player.duration > 0)
-                if(player.position >= player.duration){
-                    player.pause();
-                    backend.getNext();
-                    player.play();
-                }
-
             if(player.position / player.duration >= 0.90 & !isCompleted){
                 backend.setCurrentCompleted(true);
                 isCompleted = true;
             }
-            
+
+            if(player.duration > 0)
+                if(player.position >= player.duration){
+                    player.pause();
+                    backend.setCurrentPlayback(player.position);
+                    if(player.position / player.duration >= 0.90 & !isCompleted){
+                        backend.setCurrentCompleted(true);
+                        isCompleted = true;
+                    }
+                    backend.getNext();
+                    player.play();
+                }
+
             var position_in_minutes = player.position * 1.666667e-5;
             if(position_in_minutes > 0.05 & position_in_minutes % 3 <= 0 + (0.01 * player.playbackRate)){
                 backend.setCurrentPlayback(player.position);
