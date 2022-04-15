@@ -1,7 +1,6 @@
 from operator import truediv
 import shelve
 import os
-import json
 
 class ApplicationSettings():
     def __init__(self):
@@ -23,8 +22,8 @@ class ApplicationSettings():
             store['user_id'] = None
             store['isFirstTime'] = True
             store['completion'] = {}
-            store['watch_history'] = {}
-            store['favorites'] = {}
+            store['watch_history'] = []
+            store['favorites'] = []
             store['queue'] = [] 
             self.store = store
     
@@ -70,3 +69,34 @@ class ApplicationSettings():
             return True
         
         return False
+
+    #To-DO Potential add thumbnails to save time
+    def add_view_history(self, collection_id, media_id): 
+        history = self.store['watch_history']
+        history.insert(0, {'collection_id': collection_id, 'media_id': media_id})
+        self.store['watch_history'] = history
+
+    def get_view_history(self, limit, offset=0):
+        return self.store['watch_history'][offset:limit+offset]
+
+    def add_favorites(self, series_id):
+        favorites = self.store['favorites']
+        favorites.append(series_id)
+        self.store['favorites'] = favorites
+
+
+    def get_view_favorites(self, limit, offset=0):
+        return self.store['favorites'][offset:limit+offset]
+
+
+    def add_queue(self, series_id):
+        queue = self.store['queue']
+        queue.append(series_id)
+        self.store['queue'] = queue
+
+    def get_view_queue(self, limit, offset=0):
+        return self.store['queue'][offset:limit+offset]
+
+
+        
+
