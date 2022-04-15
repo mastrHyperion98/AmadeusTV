@@ -95,7 +95,7 @@ ScrollView{
 
             Label {
                 id: queue_label
-                text: "Watch List"
+                text: "Queue"
                 color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
@@ -111,6 +111,38 @@ ScrollView{
                 anchors.top: queue_label.bottom
                 anchors.topMargin: 50
                 model: queue_model
+                delegate: delegate
+                orientation: ListView.Horizontal
+                clip: true
+            }
+        }
+
+        Rectangle{
+            id: favorites
+            width: parent.width
+            height: 500
+            color: Material.background
+            border.width: 5
+            
+
+            Label {
+                id: favorite_label
+                text: "Favorites"
+                color: Material.primary
+                font.pointSize: 20
+                //fontSizeMode: Text.Fit
+                font.weight: Font.Bold
+                style: Text.Raised
+                anchors.horizontalCenter: parent.horizontalCenter
+                padding: 15
+            }
+
+            ListView {
+                id: favoriteview
+                anchors.fill: parent
+                anchors.top: favorite_label.bottom
+                anchors.topMargin: 50
+                //model: favorite_model
                 delegate: delegate
                 orientation: ListView.Horizontal
                 clip: true
@@ -176,6 +208,38 @@ ScrollView{
                 orientation: ListView.Horizontal
                 anchors.top: updated_label.bottom
                 anchors.topMargin: 50
+            }
+        }
+
+        Rectangle{
+            id: watch_history
+            width: parent.width
+            height: 500
+            color: Material.background
+            border.width: 5
+            
+
+            Label {
+                id: history_label
+                text: "History"
+                color: Material.primary
+                font.pointSize: 20
+                //fontSizeMode: Text.Fit
+                font.weight: Font.Bold
+                style: Text.Raised
+                anchors.horizontalCenter: parent.horizontalCenter
+                padding: 15
+            }
+
+            ListView {
+                id: historyview
+                anchors.fill: parent
+                anchors.top: history_label.bottom
+                anchors.topMargin: 50
+                //model: history_model
+                delegate: delegate
+                orientation: ListView.Horizontal
+                clip: true
             }
         }
 

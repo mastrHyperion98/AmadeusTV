@@ -105,7 +105,7 @@ class CrunchyrollController(QObject):
 
     @Slot()
     def cr_logout(self):
-        self.settings.updateS3Log()
+        #self.settings.updateS3Log()
         self.crunchyroll.logout()
         self.settings.completion = {}
         self.settings.view_history = []
@@ -332,6 +332,9 @@ class CrunchyrollController(QObject):
         if self.playlist[self.current].completed:
             self.settings.add_completed(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
             print("Added to completed")
+        else:
+            self.settings.add_view_history(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
+            print("Added to view history")
 
     @Slot(str, str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):
