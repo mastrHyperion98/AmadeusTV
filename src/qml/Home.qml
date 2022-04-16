@@ -11,19 +11,12 @@ ScrollView{
     id: scrollview
     width: parent.width
     height: parent.height
-    contentHeight: content.height
+    contentHeight:grid.height
     contentItem: content
     ScrollBar.vertical.policy: ScrollBar.AlwaysOn
     clip: true
 
-    Rectangle{
-        id: content
-        width: parent.width
-        height: 1440
-        color: Material.background
-        
-
-        ListModel {
+    ListModel {
             id: queue_model
             dynamicRoles: true
         }
@@ -83,15 +76,17 @@ ScrollView{
                 }
             }
         }
-
-
+    
+    Grid{
+        id: grid
+        columns: 1
+        width: window.width
         Rectangle{
             id: queue
             width: parent.width
             height: 500
             color: Material.background
             border.width: 5
-            
 
             Label {
                 id: queue_label
@@ -104,30 +99,17 @@ ScrollView{
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
-
-            ListView {
-                id: queueview
-                anchors.fill: parent
-                anchors.top: queue_label.bottom
-                anchors.topMargin: 50
-                model: queue_model
-                delegate: delegate
-                orientation: ListView.Horizontal
-                clip: true
-            }
         }
-
         Rectangle{
-            id: favorites
+            id: favorite
             width: parent.width
             height: 500
             color: Material.background
             border.width: 5
-            
 
             Label {
                 id: favorite_label
-                text: "Favorites"
+                text: "Favorite"
                 color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
@@ -136,17 +118,6 @@ ScrollView{
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
-
-            ListView {
-                id: favoriteview
-                anchors.fill: parent
-                anchors.top: favorite_label.bottom
-                anchors.topMargin: 50
-                //model: favorite_model
-                delegate: delegate
-                orientation: ListView.Horizontal
-                clip: true
-            }
         }
 
         Rectangle{
@@ -154,8 +125,6 @@ ScrollView{
             width: parent.width
             height: 500
             color: Material.background
-            anchors.top: queue.bottom
-            anchors.topMargin: -30
             border.width: 5
 
             Label {
@@ -185,8 +154,6 @@ ScrollView{
             width: parent.width
             height: 500
             color: Material.background
-            anchors.top: simulcasts.bottom
-            anchors.topMargin: -30
             border.width: 5
 
             Label {
@@ -212,12 +179,11 @@ ScrollView{
         }
 
         Rectangle{
-            id: watch_history
+            id: history
             width: parent.width
             height: 500
             color: Material.background
             border.width: 5
-            
 
             Label {
                 id: history_label
@@ -230,18 +196,8 @@ ScrollView{
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
-
-            ListView {
-                id: historyview
-                anchors.fill: parent
-                anchors.top: history_label.bottom
-                anchors.topMargin: 50
-                //model: history_model
-                delegate: delegate
-                orientation: ListView.Horizontal
-                clip: true
-            }
         }
+        
 
     }
 

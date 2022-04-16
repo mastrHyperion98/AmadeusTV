@@ -113,6 +113,7 @@ class CrunchyrollServer:
                 password = self.settings.store['password']
 
         url = self.get_url(RequestType.LOGIN)
+        print(url)
         data = {
             'account': account,
             'password': password,
@@ -151,8 +152,26 @@ class CrunchyrollServer:
     @login_required
     @session_required
     def logout(self):
-        self.settings.clear_store()
-        self.session.cookies.clear()
+        url = self.get_url(RequestType.LOGOUT)
+
+        device_id = self.settings.store['device_id']
+
+        params = {
+            'access_token': self.token,
+            'device_type': self.device_type,
+            'device_id': device_id,
+            'version': 1.1,
+            'auth': self.settings.store['auth']
+        }
+
+        response = self.session.post(url, params, cookies=self.session.cookies).json()
+        if validate_request(response):
+            self.settings.clear_store()
+            self.session.cookies.clear()
+
+            print("logged out")
+        else:
+            raise ValueError('Request Failed!\n\n{}'.format(response))
 
     def close(self):
         self.settings.close_store()
