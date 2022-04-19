@@ -23,7 +23,6 @@ class ApplicationSettings():
             store['isFirstTime'] = True
             store['completion'] = {}
             store['watch_history'] = []
-            store['favorites'] = []
             store['queue'] = [] 
             self.store = store
     
@@ -78,16 +77,6 @@ class ApplicationSettings():
 
     def get_view_history(self, limit, offset=0):
         return self.store['watch_history'][offset:limit+offset]
-
-    def add_favorites(self, series_id):
-        favorites = self.store['favorites']
-        favorites.append(series_id)
-        self.store['favorites'] = favorites
-
-
-    def get_view_favorites(self, limit, offset=0):
-        return self.store['favorites'][offset:limit+offset]
-
 
     def add_queue(self, series_id):
         queue = self.store['queue']

@@ -73,43 +73,60 @@ Rectangle{
             anchors.margins: 15
         }
 
-        Rectangle {
+
+        Rectangle{
             id: series_header_content
             anchors.top: series_name.bottom
-            width: parent.width
-            height: 400
+            anchors.topMargin: 25
+            width: 600
+            height: 325
             color: Material.background
 
             Image{
                 id: portrait
                 source: portrait_icon
                 anchors.left: parent.left
-                anchors.margins: 30
+                anchors.margins: 25
                 anchors.verticalCenter: parent.verticalCenter
                 width: 225
                 height: 325
             }
-
-            Text{
-                id: series_description
-                wrapMode: Text.WordWrap
-                text: description
-                color: Material.primary
-                font.pointSize: 16
-                anchors.left: portrait.right
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: 50
-            }
-        }
         
+            ScrollView {
+                id: view
+                anchors.left: portrait.right
+                width: parent.width - portrait.width - 50
+                height: 325
+                anchors.leftMargin: 25
+                contentHeight:series_description.height
+                contentItem: series_description
+                //clip: true
+    
+                //ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+    
+                Text{
+                    id: series_description
+                    text: description
+                    width: view.width
+                    //height: 200
+                    wrapMode: Text.WordWrap
+                    color: Material.primary
+                    font.pointSize: 12
+                }
+            }
+
+        }
+    
         Rectangle{
             id: collections
-            width: 1000
-            height: 50
+            width: 575
+            height: 75
             anchors.top: series_header_content.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottomMargin: 25
+            anchors.left: series_header_content.left
+            anchors.topMargin: 25
+            anchors.leftMargin: 25
+            
             color: Material.background
 
             ComboBox {
@@ -184,11 +201,11 @@ Rectangle{
 
         Rectangle{
             id: episodes_content
-            width: parent.width
-            height: parent.height - series_header_content.height - collections.height - series_name.height
+            width: 600
+            height: parent.height - series_name.height
             anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.top: collections.bottom
+            anchors.top: series_name.bottom
+            anchors.margins: 25
             color: Material.background
 
             ListView {

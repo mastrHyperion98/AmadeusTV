@@ -27,8 +27,8 @@ class CrunchyrollController(QObject):
         self.crunchyroll = CrunchyrollServer()
         self.crunchyroll.create_session()
         self.settings = ApplicationSettings()
-        if self.settings.isLogin():
-            self.crunchyroll.login()
+        #if self.settings.isLogin():
+            #self.crunchyroll.login()
 
         self.limit = 20
 
@@ -87,7 +87,7 @@ class CrunchyrollController(QObject):
     @Slot(str, str)
     def setLogin(self, email, password):
         try:
-            self.crunchyroll.login(email, password)
+            #self.crunchyroll.login(email, password)
             user_id = self.crunchyroll.settings.store['user'].user_id
             self.settings.setEmail(email)
             self.settings.setPassword(password)
@@ -234,7 +234,7 @@ class CrunchyrollController(QObject):
             episode_number = episode.episode_number
             collection_id = default.collection_id
             series_id = episode.series_id
-            thumbnail = episode.screenshot_image['large_url']
+            thumbnail = episode.screenshot_image['full_url']
             media_id = episode.media_id
 
             isWatched = False
@@ -285,7 +285,7 @@ class CrunchyrollController(QObject):
             episode_number = episode.episode_number
             collection_id = collection_id
             series_id = episode.series_id
-            thumbnail = episode.screenshot_image['large_url']
+            thumbnail = episode.screenshot_image['full_url']
             media_id = episode.media_id
 
             isWatched = self.settings.is_completed(collection_id, media_id)

@@ -100,25 +100,6 @@ ScrollView{
                 padding: 15
             }
         }
-        Rectangle{
-            id: favorite
-            width: parent.width
-            height: 500
-            color: Material.background
-            border.width: 5
-
-            Label {
-                id: favorite_label
-                text: "Favorite"
-                color: Material.primary
-                font.pointSize: 20
-                //fontSizeMode: Text.Fit
-                font.weight: Font.Bold
-                style: Text.Raised
-                anchors.horizontalCenter: parent.horizontalCenter
-                padding: 15
-            }
-        }
 
         Rectangle{
             id: simulcasts

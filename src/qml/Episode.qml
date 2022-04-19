@@ -12,10 +12,10 @@ Rectangle{
     property var episode_id: ""
     property var episode_name: ""
     property var episode_number: 0
-    property alias nameColor: episode_name_id.color
+
 
     width: 750
-    height: 150
+    height: 300
     color: Material.background
 
     states: [
@@ -32,19 +32,24 @@ Rectangle{
     Image {
         id: image
         source: thumbnail
-        clip: true
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 75
+        height: 300
+        //clip: true
 
         Rectangle{
             id: backdrop
             color: Material.background
-            width: parent.width
+            anchors.left: image.left
+            anchors.right: image.right
             height: 75
             opacity: 0.25
         }
 
         Text {
             id: episodeText
-            text: "Episode: " + episode_number
+            text: "Episode: " + episode_number + "\n" + episode_name
             color: Material.primary
             font.pointSize: 16
             //fontSizeMode: Text.Fit
@@ -75,29 +80,6 @@ Rectangle{
                 source: image_complete
                 color: Material.primary
             }
-        }
-    }
-
-    Rectangle{
-        id: nameContent
-        height: 150
-        anchors.top: parent.top 
-        anchors.left: image.right
-        anchors.right: parent.right
-        anchors.leftMargin: 20
-        anchors.rightMargin: 20
-        anchors.topMargin: 10
-        color: Material.background
-
-        Text {
-            id: episode_name_id
-            text: episode_name
-            font.pointSize: 16
-            color: Material.primary
-            font.weight: Font.Black
-            style: Text.Outline
-            wrapMode: Text.Wrap
-            anchors.fill: parent
         }
     }
 }
