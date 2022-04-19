@@ -38,6 +38,10 @@ Item {
         id: mouseArea
         hoverEnabled: true
         anchors.fill: item_root
-        onClicked: item_root.clicked();
+        onClicked:{
+            item_root.clicked();
+            //checked = !checked;
+        } 
+
     }
 }

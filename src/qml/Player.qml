@@ -414,7 +414,7 @@ Rectangle {
         }
         ImageButton {
             id: fullscreenButton
-            imageSource: window.isFullscreen ? "../assets/close_fullscreen.png":"../assets/enter_fullscreen.png"
+            imageSource: isFullscreen ? "../assets/close_fullscreen.png":"../assets/enter_fullscreen.png"
             onClicked: {
                 //Toggle fullscreen
                 toggleFullScreen();
