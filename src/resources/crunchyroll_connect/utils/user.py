@@ -1,7 +1,7 @@
 import shelve
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class User:
@@ -30,7 +30,7 @@ class User:
         self.premium = premium
         self.access_type = access_type
         self.created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S%z")
-        self.expires = datetime.strptime(expires, "%Y-%m-%dT%H:%M:%S%z")
+        self.expires = expires
         self.is_publisher = is_publisher
 
 

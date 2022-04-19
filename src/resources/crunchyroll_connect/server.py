@@ -3,7 +3,7 @@ import m3u8
 
 from .utils.collections import Series, Collection
 from .utils.types import RequestType, Filters, Genres
-from .utils.user import Config, User, datetime
+from .utils.user import Config, User, datetime, timedelta
 from .utils.media import Media, MediaStream
 
 
@@ -72,6 +72,10 @@ class CrunchyrollServer:
         """
         Creates and stores a new Crunchyroll Session
         """
+
+        if  self.settings.store['session_id'] is not None:
+            return
+        
         url = self.get_url(RequestType.CREATE_SESSION)
 
         device_id = self.settings.store['device_id']
@@ -96,24 +100,19 @@ class CrunchyrollServer:
     def login(self, account=None, password=None):
 
         if self.settings.store['user'] is not None:
-            current_datetime = datetime.now().astimezone().replace(microsecond=0)
+            current_datetime = datetime.now()
             expires = self.settings.store['user'].expires
 
-            if expires <= current_datetime:
-                # If login session expired, clear store and login again
-                account = self.settings.store['account']
-                password = self.settings.store['password']
-                self.settings.clear_store()
-                # Create a new session, because current session expired
-                self.__create_session()
-                # Recursive call to itself
+            if current_datetime <= expires:
+                return True
 
             else:
                 account = self.settings.store['account']
                 password = self.settings.store['password']
+                self.settings.clear_store()
+                self.create_session()
 
         url = self.get_url(RequestType.LOGIN)
-        print(url)
         data = {
             'account': account,
             'password': password,
@@ -135,7 +134,7 @@ class CrunchyrollServer:
                 premium=user_data['premium'],
                 access_type=user_data['access_type'],
                 created=user_data['created'],
-                expires=response['data']['expires'],
+                expires=datetime.now() + timedelta(hours=12),
                 is_publisher=user_data['is_publisher']
             )
 

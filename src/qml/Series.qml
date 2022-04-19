@@ -28,7 +28,6 @@ Rectangle{
         Column {
             id: wrapper
             padding: 10
-            anchors.horizontalCenter: parent.horizontalCenter
             property alias state: episode.state
             Episode{
                 id: episode
@@ -100,7 +99,7 @@ Rectangle{
                 anchors.leftMargin: 25
                 contentHeight:series_description.height
                 contentItem: series_description
-                //clip: true
+                clip: true
     
                 //ScrollBar.vertical.policy: ScrollBar.AlwaysOn
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -112,7 +111,7 @@ Rectangle{
                     //height: 200
                     wrapMode: Text.WordWrap
                     color: Material.primary
-                    font.pointSize: 12
+                    font.pointSize: 16
                 }
             }
 
