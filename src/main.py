@@ -12,8 +12,6 @@ AUTHOR = "mastrhyperion98"
 
 
 def exit_handler(backend):
-    #Update History and Completion List
-    #backend.settings.updateS3Log()
     #Properly close the crunchyroll server
     backend.crunchyroll.close()
 

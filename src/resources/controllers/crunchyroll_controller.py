@@ -1,7 +1,6 @@
 import json
 from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
-from resources.crunchyroll_connect.utils import user
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 from ..application_settings import ApplicationSettings
@@ -25,10 +24,12 @@ class CrunchyrollController(QObject):
 
 
         self.crunchyroll = CrunchyrollServer()
-        self.crunchyroll.create_session()
         self.settings = ApplicationSettings()
+
         if self.settings.isLogin():
             self.crunchyroll.login()
+        else:
+            self.crunchyroll.create_session()
 
         self.limit = 20
 
@@ -237,7 +238,7 @@ class CrunchyrollController(QObject):
             thumbnail = episode.screenshot_image['full_url']
             media_id = episode.media_id
 
-            isWatched = False
+            isWatched = self.settings.is_completed(collection_id, media_id)
 
             json_def = {
                 "name": name,
@@ -331,10 +332,10 @@ class CrunchyrollController(QObject):
         # if req.status_code == 200:
         if self.playlist[self.current].completed:
             self.settings.add_completed(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
-            print("Added to completed")
+
         else:
             self.settings.add_view_history(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
-            print("Added to view history")
+
 
     @Slot(str, str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):

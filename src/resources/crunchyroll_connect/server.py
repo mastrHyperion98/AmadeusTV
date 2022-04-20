@@ -72,9 +72,6 @@ class CrunchyrollServer:
         """
         Creates and stores a new Crunchyroll Session
         """
-
-        if  self.settings.store['session_id'] is not None:
-            return
         
         url = self.get_url(RequestType.CREATE_SESSION)
 
@@ -96,9 +93,7 @@ class CrunchyrollServer:
         else:
             raise ValueError('Request Failed!\n\n{}'.format(response))
 
-    @session_required
     def login(self, account=None, password=None):
-
         if self.settings.store['user'] is not None:
             current_datetime = datetime.now()
             expires = self.settings.store['user'].expires
@@ -107,11 +102,12 @@ class CrunchyrollServer:
                 return True
 
             else:
+                print("expired")
                 account = self.settings.store['account']
                 password = self.settings.store['password']
                 self.settings.clear_store()
-                self.create_session()
 
+        self.create_session()
         url = self.get_url(RequestType.LOGIN)
         data = {
             'account': account,

@@ -14,7 +14,7 @@ Rectangle{
     property var episode_number: 0
 
 
-    width: 750
+    width: 600
     height: 300
     color: Material.background
 
@@ -34,8 +34,9 @@ Rectangle{
         source: thumbnail
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.margins: 75
+        //anchors.margins: 200
         height: 300
+        width: 600
         //clip: true
 
         Rectangle{
@@ -62,11 +63,12 @@ Rectangle{
         }
         Item{
             id: completion_item
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
+            anchors.right: image.right
+            anchors.bottom: image.bottom
+            anchors.margins: 25
             width: 64
             height: 64
-            //visible: isWatched
+            visible: true
 
             Image {
                 id: image_complete

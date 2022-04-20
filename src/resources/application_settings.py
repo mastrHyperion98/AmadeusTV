@@ -57,11 +57,13 @@ class ApplicationSettings():
         completed = self.store['completion']
         if collection_id not in completed:
             completed[collection_id] =[media_id]
+            
         elif media_id not in completed:
             completed[collection_id].append(media_id)
+            
 
         self.store['completion'] = completed
-
+    
     def is_completed(self, collection_id, media_id):
         completed = self.store['completion']
         if collection_id in completed and media_id in completed[collection_id]:

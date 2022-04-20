@@ -113,6 +113,8 @@ ToolBar {
             if(main.currentItem.objectName == "HOME")
                 allowReturn = false;
             alert.visible = false;
+
+            backend.logMedia();
         }
 
         visible: allowReturn
