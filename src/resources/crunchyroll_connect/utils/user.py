@@ -43,13 +43,10 @@ class Config:
         if os.path.isfile('user.dat'):
             # File exists
             self.store = shelve.open('user.dat')
-
         else:
             store = shelve.open('user.dat')
             store['session_id'] = ""
             store['device_id'] = uuid.uuid1()
-            store['account'] = ""
-            store['password'] = ""
             store['user'] = None
             store['auth'] = ""
             store['user_id'] = ""

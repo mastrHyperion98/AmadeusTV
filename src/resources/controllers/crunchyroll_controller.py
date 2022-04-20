@@ -26,8 +26,8 @@ class CrunchyrollController(QObject):
         self.crunchyroll = CrunchyrollServer()
         self.settings = ApplicationSettings()
 
-        if self.settings.isLogin():
-            self.crunchyroll.login()
+        if self.settings.isLogin() or self.settings.getRememberMe():
+            self.crunchyroll.login(self.settings.getEmail(), self.settings.getPassword())
         else:
             self.crunchyroll.create_session()
 
@@ -88,7 +88,7 @@ class CrunchyrollController(QObject):
     @Slot(str, str)
     def setLogin(self, email, password):
         try:
-            self.crunchyroll.login(email, password)
+            user = self.crunchyroll.login(email, password)
             user_id = self.crunchyroll.settings.store['user'].user_id
             self.settings.setEmail(email)
             self.settings.setPassword(password)

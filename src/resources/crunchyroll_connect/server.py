@@ -19,7 +19,7 @@ def validate_request(req):
 
 def login_required(function):
     def wrap(self, *args, **kwargs):
-        if self.settings.store['user'] is not None:
+        if len(self.settings.store['auth']) > 0:
             return function(self, *args, **kwargs)
         else:
             raise ValueError('Must be logged in to access to function')
@@ -103,8 +103,6 @@ class CrunchyrollServer:
 
             else:
                 print("expired")
-                account = self.settings.store['account']
-                password = self.settings.store['password']
                 self.settings.clear_store()
 
         self.create_session()
@@ -134,8 +132,6 @@ class CrunchyrollServer:
                 is_publisher=user_data['is_publisher']
             )
 
-            self.settings.store['account'] = account
-            self.settings.store['password'] = password
             self.settings.store['auth'] = response['data']['auth']
             self.settings.store['user'] = user
 

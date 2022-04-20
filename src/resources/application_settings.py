@@ -53,6 +53,12 @@ class ApplicationSettings():
     def setUserId(self, id):
         self.store['user_id'] = id
 
+    def getPassword(self):
+        return self.store['password'] 
+
+    def getEmail(self):
+        return self.store['email']
+
     def add_completed(self, collection_id, media_id):
         completed = self.store['completion']
         if collection_id not in completed:
