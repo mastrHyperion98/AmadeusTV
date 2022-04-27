@@ -31,6 +31,37 @@ ScrollView{
             dynamicRoles: true
         }
 
+        ListModel {
+            id: history_model
+            dynamicRoles: true
+        }
+    
+        Component {
+            id: delegate_history
+            
+    
+            Column {
+                id: wrapper
+                padding: 10
+                Episode{
+                    id: episode
+                    thumbnail: icon
+                    episode_name: name
+                    episode_number: number
+                    completable: false
+    
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            backend.setPlaylistIndex(index);
+                            main.push("Player.qml");
+                            allowReturn = true;
+                        } 
+                    }
+                }
+            }
+        }
+
         Component {
             id: delegate
             Column {
@@ -177,6 +208,15 @@ ScrollView{
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
+
+            ListView {
+                anchors.fill: parent
+                model: history_model
+                delegate: delegate_history
+                orientation: ListView.Horizontal
+                anchors.top: history_label.bottom
+                anchors.topMargin: 50
+            }
         }
         
 
@@ -211,11 +251,27 @@ ScrollView{
                 queue_model.append({"name": name, "icon": img, "series_id": id});
             }
         } 
+
+        function onAddWatchHistory(data){
+            data = JSON.parse(data);
+            var count = Object.keys(data).length;
+            for(let i = 0; i < count; i++){
+                var name = data[i].name;
+                var ep_num = data[i].episode_number;
+                var icon = data[i].thumbnail;
+                var media_id = data[i].media_id;
+                var collection_id = data[i].collection_id
+
+                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                history_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
+            }
+        }
     }
 
 
     Component.onCompleted: {
         backend.getSimulcast();
+        backend.getWatchHistory();
         backend.getUpdated();
         // always visible
         window.header.visible = true;

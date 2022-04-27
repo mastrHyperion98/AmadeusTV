@@ -12,6 +12,7 @@ Rectangle{
     property var episode_id: ""
     property var episode_name: ""
     property var episode_number: 0
+    property bool completable: true
 
 
     width: 600
@@ -21,7 +22,7 @@ Rectangle{
     states: [
         State {
             name: "WATCHED"
-            PropertyChanges { target: completion_item; visible: true;}
+            PropertyChanges { target: completion_item; visible: completable;}
         },
         State{
             name: "TOWATCH"
@@ -68,7 +69,7 @@ Rectangle{
             anchors.margins: 25
             width: 64
             height: 64
-            visible: true
+            visible: false
 
             Image {
                 id: image_complete

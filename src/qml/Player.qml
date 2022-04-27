@@ -494,15 +494,31 @@ Rectangle {
 
         property bool isMouseAbove: false
 
-        MouseArea {
-            anchors.fill:videoHeader
-            hoverEnabled: true
 
-            onEntered: videoHeader.isMouseAbove = true;
-            onExited: {
-                videoHeader.isMouseAbove = false;
+        ImageButton{
+            id: return_button
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: 10
+            imageSource: "../assets/return.png"
+            onClicked: {
+                backend.logMedia();
+                main.pop();
+                window.header.visible = true;
             }
+    
+            visible: allowReturn
         }
+
+        // MouseArea {
+        //     anchors.fill:videoHeader
+        //     hoverEnabled: true
+
+        //     onEntered: videoHeader.isMouseAbove = true;
+        //     onExited: {
+        //         videoHeader.isMouseAbove = false;
+        //     }
+        // }
 
 
 
@@ -577,12 +593,12 @@ Rectangle {
         if(!isFullscreen){
             window.showFullScreen();
             isFullscreen = true;
-            window.header.visible = false;
+            //window.header.visible = false;
         }
         else {
             window.showNormal();
             isFullscreen = false;
-            window.header.visible = true;
+            //window.header.visible = false;
         }
     }
 
@@ -667,5 +683,6 @@ Rectangle {
     Component.onCompleted: {
         backend.getCurrent();
         alert.visible = false
+        window.header.visible = false;
     }
 }

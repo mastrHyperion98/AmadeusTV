@@ -233,7 +233,7 @@ Rectangle{
                 var collection_id = data[i].collection_id
                 var isWatched = data[i].isWatched
 
-                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id)
+                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
                 episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id, "is_watched": isWatched});
             }
         }

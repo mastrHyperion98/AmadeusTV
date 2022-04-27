@@ -5,8 +5,6 @@ import os
 class ApplicationSettings():
     def __init__(self):
         self.init_store()
-        self.completion = {}
-        self.view_history = []
 
     def init_store(self):
         if os.path.isfile('app.dat'):
@@ -78,11 +76,19 @@ class ApplicationSettings():
         return False
 
     #To-DO Potential add thumbnails to save time
-    def add_view_history(self, collection_id, media_id): 
+    def add_view_history(self, episode): 
         history = self.store['watch_history']
-        history.insert(0, {'collection_id': collection_id, 'media_id': media_id})
-        self.store['watch_history'] = history
+        if len(history) > 0: 
+            if history[0].collection_id != episode.collection_id and history[0].media_id != episode.media_id:
+                history.insert(0, episode)
+                self.store['watch_history'] = history
+                print("added")
+        else:
+            history.insert(0, episode)
+            self.store['watch_history'] = history
+            print("added")
 
+        
     def get_view_history(self, limit, offset=0):
         return self.store['watch_history'][offset:limit+offset]
 

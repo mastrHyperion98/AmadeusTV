@@ -42,6 +42,7 @@ class CrunchyrollController(QObject):
     setQuality = Signal(str)
     addSimulcast = Signal(str, str)
     addUpdated = Signal(str, str)
+    addWatchHistory = Signal(str)
     addQueue = Signal(str, str)
     addSearch = Signal(str, str)
     startup = Signal(str)
@@ -135,6 +136,30 @@ class CrunchyrollController(QObject):
 
             json_data = json.dumps(data)
             self.addSimulcast.emit(json_data , img)
+
+    @Slot()
+    def getWatchHistory(self):
+        history = self.settings.get_view_history(limit=self.limit)
+        for episode in history:
+            json_episodes = []
+            name = episode.name
+            episode_number = episode.episode_num
+            collection_id = episode.collection_id
+            thumbnail = episode.thumbnail
+            media_id = episode.media_id
+
+            json_def = {
+                "name": name,
+                "episode_number": episode_number,
+                "collection_id": collection_id,
+                "thumbnail": thumbnail,
+                "media_id": media_id,
+            }
+            json_episodes.append(json_def)
+
+            json_episodes = json.dumps(json_episodes)
+            self.addWatchHistory.emit(json_episodes)
+
 
     @Slot()
     def getUpdated(self):
@@ -334,12 +359,13 @@ class CrunchyrollController(QObject):
             self.settings.add_completed(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
 
         else:
-            self.settings.add_view_history(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
+            self.settings.add_view_history(self.playlist[self.current])
+            self.getWatchHistory()
 
 
-    @Slot(str, str, str, str)
-    def addMediaToPlaylist(self, media_id, name, episode_num, collection_id):
-        self.playlist.append(Episode(name, episode_num, media_id, collection_id))
+    @Slot(str, str, str, str, str)
+    def addMediaToPlaylist(self, media_id, name, episode_num, collection_id, img):
+        self.playlist.append(Episode(name, episode_num, media_id, collection_id, img))
 
     @Slot(int)
     def setPlaylistIndex(self, index):
@@ -419,13 +445,14 @@ class CrunchyrollController(QObject):
         self.settings.addViewHistory(current.media_id)
 
 class Episode():
-    def __init__(self, name, episode_num, media_id, collection_id, playhead=0, duration=0, completed = False):
+    def __init__(self, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):
         self.name = name
         self.episode_num = episode_num
         self.media_id = media_id
         self.collection_id = collection_id
         self.playhead = playhead
         self.completed = completed
+        self.thumbnail = thumbnail
         self.stream_data = None
     
 
