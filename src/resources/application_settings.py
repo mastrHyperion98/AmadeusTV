@@ -21,7 +21,8 @@ class ApplicationSettings():
             store['isFirstTime'] = True
             store['completion'] = {}
             store['watch_history'] = []
-            store['queue'] = [] 
+            store['queue'] = []
+            store['queue_index'] = {}
             self.store = store
     
     def getRememberMe(self):
@@ -82,23 +83,45 @@ class ApplicationSettings():
             if history[0].collection_id != episode.collection_id and history[0].media_id != episode.media_id:
                 history.insert(0, episode)
                 self.store['watch_history'] = history
-                print("added")
         else:
             history.insert(0, episode)
             self.store['watch_history'] = history
-            print("added")
 
         
     def get_view_history(self, limit, offset=0):
         return self.store['watch_history'][offset:limit+offset]
 
-    def add_queue(self, series_id):
+    def add_queue(self, series):
+        series_id = series['series_id']
+
+        if series_id in self.store['queue_index']:
+            return
+
+        index = self.store['queue_index']
+        index[series_id] = {'queued': True}
+        self.store['queue_index'] = index
         queue = self.store['queue']
-        queue.append(series_id)
+        queue.append(series)
         self.store['queue'] = queue
 
-    def get_view_queue(self, limit, offset=0):
+    def get_queue(self, limit, offset=0):
         return self.store['queue'][offset:limit+offset]
+
+    def remove_queue(self, series):
+        series_id = series['series_id']
+
+        index = self.store['queue_index']
+        index.pop(series_id, None)
+        self.store['queue_index'] = index
+        queue = self.store['queue']
+        for s in queue:
+            if s['series_id'] == series_id:
+                queue.remove(s)
+        
+        self.store['queue'] = queue
+
+    def is_in_queue(self, series_id):
+        return series_id in self.store['queue_index']
 
 
         

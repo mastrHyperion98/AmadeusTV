@@ -502,7 +502,6 @@ Rectangle {
             anchors.leftMargin: 10
             imageSource: "../assets/return.png"
             onClicked: {
-                backend.logMedia();
                 main.pop();
                 window.header.visible = true;
             }
@@ -625,16 +624,13 @@ Rectangle {
             if(player.position / player.duration >= 0.90 & !isCompleted){
                 backend.setCurrentCompleted(true);
                 isCompleted = true;
+                backend.logMedia();
             }
 
             if(player.duration > 0)
                 if(player.position >= player.duration){
                     player.pause();
                     backend.setCurrentPlayback(player.position);
-                    if(player.position / player.duration >= 0.90 & !isCompleted){
-                        backend.setCurrentCompleted(true);
-                        isCompleted = true;
-                    }
                     backend.getNext();
                     player.play();
                 }

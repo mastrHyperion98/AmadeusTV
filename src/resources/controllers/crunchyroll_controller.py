@@ -43,7 +43,9 @@ class CrunchyrollController(QObject):
     addSimulcast = Signal(str, str)
     addUpdated = Signal(str, str)
     addWatchHistory = Signal(str)
-    addQueue = Signal(str, str)
+    addWatchHistoryDynamic = Signal(str)
+    addQueue = Signal(str)
+    setQueueState = Signal(str)
     addSearch = Signal(str, str)
     startup = Signal(str)
     login = Signal(bool)
@@ -140,8 +142,9 @@ class CrunchyrollController(QObject):
     @Slot()
     def getWatchHistory(self):
         history = self.settings.get_view_history(limit=self.limit)
+        json_episodes = []
         for episode in history:
-            json_episodes = []
+            
             name = episode.name
             episode_number = episode.episode_num
             collection_id = episode.collection_id
@@ -157,8 +160,8 @@ class CrunchyrollController(QObject):
             }
             json_episodes.append(json_def)
 
-            json_episodes = json.dumps(json_episodes)
-            self.addWatchHistory.emit(json_episodes)
+        json_episodes = json.dumps(json_episodes)
+        self.addWatchHistory.emit(json_episodes)
 
 
     @Slot()
@@ -181,6 +184,31 @@ class CrunchyrollController(QObject):
 
             json_data = json.dumps(data)
             self.addUpdated.emit(json_data, img)
+
+    @Slot(str)
+    def addToQueue(self, data):
+        self.settings.add_queue(json.loads(data))
+        self.addQueue.emit(data)
+
+    @Slot(str)
+    def removeFromQueue(self, data):
+        self.settings.remove_queue(json.loads(data))
+    
+    @Slot(str)
+    def getQueueState(self, series_id):
+        state = self.settings.is_in_queue(series_id)
+
+        if state:
+            self.setQueueState.emit("IN_QUEUE")
+        else:
+            self.setQueueState.emit("NOT_IN_QUEUE")
+
+    @Slot()
+    def getQueue(self):
+        queue = self.settings.get_queue(limit=self.limit)
+        for series in queue:
+            data = json.dumps(series)
+            self.addQueue.emit(data)
 
 
     @Slot(str)
@@ -355,12 +383,13 @@ class CrunchyrollController(QObject):
         # req = requests.put(url, json=data)
 
         # if req.status_code == 200:
-        if self.playlist[self.current].completed:
-            self.settings.add_completed(self.playlist[self.current].collection_id,self.playlist[self.current].media_id)
+        episode = self.playlist[self.current]
+        if episode.completed:
+            self.settings.add_completed(episode.collection_id,episode.media_id)
 
         else:
-            self.settings.add_view_history(self.playlist[self.current])
-            self.getWatchHistory()
+            self.settings.add_view_history(episode)
+            self.emit_episode(episode)
 
 
     @Slot(str, str, str, str, str)
@@ -441,8 +470,31 @@ class CrunchyrollController(QObject):
     def getLowest(self):
         self.setQuality.emit(self.playlist[self.current].stream[Quality.LOWEST.value].url)
     
+        
+    def emit_episode(self, episode):
+        json_episodes = []
+        name = episode.name
+        episode_number = episode.episode_num
+        collection_id = episode.collection_id
+        thumbnail = episode.thumbnail
+        media_id = episode.media_id
+
+        json_def = {
+            "name": name,
+            "episode_number": episode_number,
+            "collection_id": collection_id,
+            "thumbnail": thumbnail,
+            "media_id": media_id,
+        }
+        json_episodes.append(json_def)
+
+        json_episodes = json.dumps(json_episodes)
+        self.addWatchHistoryDynamic.emit(json_episodes)
+
     def updateHistory(self, current):
         self.settings.addViewHistory(current.media_id)
+
+    
 
 class Episode():
     def __init__(self, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):

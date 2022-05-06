@@ -130,6 +130,15 @@ ScrollView{
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 15
             }
+
+            ListView {
+                anchors.fill: parent
+                model: queue_model
+                delegate: delegate
+                orientation: ListView.Horizontal
+                anchors.top: simulcast_label.bottom
+                anchors.topMargin: 50
+            }
         }
 
         Rectangle{
@@ -242,16 +251,6 @@ ScrollView{
              }
        } 
 
-       function onAddQueue(id, img) {
-           
-            if(queue_model.count <= 10){
-                var split = id.split("__UUID__");
-                var name = split[0]
-                var id = split[1]
-                queue_model.append({"name": name, "icon": img, "series_id": id});
-            }
-        } 
-
         function onAddWatchHistory(data){
             data = JSON.parse(data);
             var count = Object.keys(data).length;
@@ -266,12 +265,33 @@ ScrollView{
                 history_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
         }
+
+        function onAddWatchHistoryDynamic(data){
+            data = JSON.parse(data);
+            var count = Object.keys(data).length;
+            for(let i = 0; i < count; i++){
+                var name = data[i].name;
+                var ep_num = data[i].episode_number;
+                var icon = data[i].thumbnail;
+                var media_id = data[i].media_id;
+                var collection_id = data[i].collection_id
+
+                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                history_model.insert(0, {"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
+            }
+        }
+
+        function onAddQueue(data){
+            data = JSON.parse(data);
+            queue_model.append({"name": data.name, "icon": data.landscape, "series_id": data.series_id, "description": data.description, "portrait_icon": data.portrait});
+        }
     }
 
 
     Component.onCompleted: {
         backend.getSimulcast();
         backend.getWatchHistory();
+        backend.getQueue();
         backend.getUpdated();
         // always visible
         window.header.visible = true;

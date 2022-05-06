@@ -13,8 +13,20 @@ Rectangle{
     property string description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     property var portrait_icon: ""
     property var landscape_icon: "" 
+    
     color: Material.background
     clip: true
+
+    states: [
+        State {
+            name: "IN_QUEUE"
+            PropertyChanges { target: add_to_queue_button; text: "Remove From Queue";}
+        },
+        State{
+            name: "NOT_IN_QUEUE"
+            PropertyChanges {target: add_to_queue_button; text: "Add To Queue";}
+        }
+    ]
 
     ListModel {
         id: episode_model
@@ -90,7 +102,7 @@ Rectangle{
                 width: 225
                 height: 325
             }
-        
+
             ScrollView {
                 id: view
                 anchors.left: portrait.right
@@ -197,6 +209,35 @@ Rectangle{
             }
         }
         
+        Button {
+            id: add_to_queue_button
+            anchors.left: series_header_content.left
+            anchors.top: collections.bottom
+            anchors.right: collections.right
+            anchors.leftMargin: 25
+            text: "Add To Queue"
+            onClicked: {
+
+                var data = {
+                    "series_id": root.series_id,
+                    "name": root.name,
+                    "portrait": root.portrait_icon,
+                    "landscape": root.landscape_icon,
+                    "description": root.description
+                }
+
+                if(root.state == "IN_QUEUE"){
+                    root.state = "NOT_IN_QUEUE";
+                    backend.removeFromQueue(JSON.stringify(data));
+                }
+                else {
+                    root.state = "IN_QUEUE"
+                    backend.addToQueue(JSON.stringify(data));
+                }
+
+            }
+        }
+    
 
         Rectangle{
             id: episodes_content
@@ -258,10 +299,15 @@ Rectangle{
                 }
             }
         }
+
+        function onSetQueueState(state){
+            root.state = state;
+        }
     }
 
     Component.onCompleted: {
-        backend.fetchCollections(series_id)
-        alert.visible = false
+        backend.getQueueState(root.series_id);
+        backend.fetchCollections(series_id);
+        alert.visible = false;
     }
 }
