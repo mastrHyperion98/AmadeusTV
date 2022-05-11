@@ -53,7 +53,8 @@ ScrollView{
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            backend.setPlaylistIndex(index);
+                            backend.fetchEpisodeList(collection_id)
+                            backend.setPlaylistByID(media_id);
                             main.push("Player.qml");
                             allowReturn = true;
                         } 
@@ -132,11 +133,11 @@ ScrollView{
             }
 
             ListView {
+                id: queue_list
                 anchors.fill: parent
                 model: queue_model
                 delegate: delegate
                 orientation: ListView.Horizontal
-                anchors.top: simulcast_label.bottom
                 anchors.topMargin: 50
             }
         }
@@ -261,7 +262,7 @@ ScrollView{
                 var media_id = data[i].media_id;
                 var collection_id = data[i].collection_id
 
-                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
                 history_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
         }
@@ -276,7 +277,7 @@ ScrollView{
                 var media_id = data[i].media_id;
                 var collection_id = data[i].collection_id
 
-                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
                 history_model.insert(0, {"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
         }
@@ -284,6 +285,20 @@ ScrollView{
         function onAddQueue(data){
             data = JSON.parse(data);
             queue_model.append({"name": data.name, "icon": data.landscape, "series_id": data.series_id, "description": data.description, "portrait_icon": data.portrait});
+        }
+
+        function onRemoveQueue(data){
+            var count = queue_model.count;
+
+            for(var i = 0; i < count; i++){
+                var series_id = queue_model.series_id;
+                if(series_id = data){
+                    queue_model.clear();
+                    backend.getQueue();
+                    break;
+                }
+            }
+
         }
     }
 

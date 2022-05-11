@@ -45,6 +45,7 @@ class CrunchyrollController(QObject):
     addWatchHistory = Signal(str)
     addWatchHistoryDynamic = Signal(str)
     addQueue = Signal(str)
+    removeQueue=Signal(str)
     setQueueState = Signal(str)
     addSearch = Signal(str, str)
     startup = Signal(str)
@@ -192,7 +193,9 @@ class CrunchyrollController(QObject):
 
     @Slot(str)
     def removeFromQueue(self, data):
-        self.settings.remove_queue(json.loads(data))
+        json_data = json.loads(data)
+        self.settings.remove_queue(json_data)
+        self.removeQueue.emit(json_data['series_id'])
     
     @Slot(str)
     def getQueueState(self, series_id):
@@ -235,7 +238,6 @@ class CrunchyrollController(QObject):
     @Slot(str)
     #Get list of collection and return first collection episodes info
     def fetchCollections(self, series_id):
-        self.playlist.clear()
         collections = self.crunchyroll.get_collections(series_id)
         json_collections = []
 
@@ -258,8 +260,6 @@ class CrunchyrollController(QObject):
         self.getCollections.emit(json_collections)
 
         default = collections[0]
-        json_episodes = []
-        episodes = self.crunchyroll.get_episodes(default.collection_id)
 
         # if self.settings.store['user_id'] is not None:
         #         url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
@@ -283,29 +283,7 @@ class CrunchyrollController(QObject):
         #         session.close()
 
     
-        for episode in episodes:
-            name = episode.name
-            episode_number = episode.episode_number
-            collection_id = default.collection_id
-            series_id = episode.series_id
-            thumbnail = episode.screenshot_image['full_url']
-            media_id = episode.media_id
-
-            isWatched = self.settings.is_completed(collection_id, media_id)
-
-            json_def = {
-                "name": name,
-                "episode_number": episode_number,
-                "collection_id": collection_id,
-                "series_id": series_id,
-                "thumbnail": thumbnail,
-                "media_id": media_id,
-                "isWatched": isWatched
-            }
-            json_episodes.append(json_def)
-
-        json_episodes = json.dumps(json_episodes)
-        self.getEpisodes.emit(json_episodes)
+        self.fetchEpisodeList(default.collection_id)
 
     @Slot(str)
     def fetchEpisodeList(self, collection_id):
@@ -354,6 +332,7 @@ class CrunchyrollController(QObject):
                 "isWatched": isWatched
             }
             json_episodes.append(json_def)
+            self.addMediaToPlaylist(media_id, name, episode_number, collection_id, thumbnail)
 
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
@@ -388,23 +367,35 @@ class CrunchyrollController(QObject):
             self.settings.add_completed(episode.collection_id,episode.media_id)
 
         else:
-            self.settings.add_view_history(episode)
-            self.emit_episode(episode)
+            is_added = self.settings.add_view_history(episode)
+            if is_added:
+                self.emit_episode(episode)
 
 
     @Slot(str, str, str, str, str)
     def addMediaToPlaylist(self, media_id, name, episode_num, collection_id, img):
         self.playlist.append(Episode(name, episode_num, media_id, collection_id, img))
 
+    @Slot(str)
+    def setPlaylistByID(self, id):
+        for index in range(len(self.playlist)):
+            episode = self.playlist[index]
+            if episode.media_id.strip() == id.strip():
+                self.current = index
+
+
     @Slot(int)
     def setPlaylistIndex(self, index):
-        if index < len(self.playlist):
+        if index >= 0 and index < len(self.playlist):
             self.current = index
 
 
     @Slot()
     def getCurrent(self):
-        episode = self.playlist[self.current]
+        if self.current < len(self.playlist):
+            episode = self.playlist[self.current]
+        else: 
+            episode = self.playlist[len(self.playlist)-1]
         #self.settings.addViewHistory(episode)
         try:
             episode.getStream(self.crunchyroll)
