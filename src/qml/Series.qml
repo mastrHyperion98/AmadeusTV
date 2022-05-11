@@ -13,8 +13,20 @@ Rectangle{
     property string description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     property var portrait_icon: ""
     property var landscape_icon: "" 
+    
     color: Material.background
     clip: true
+
+    states: [
+        State {
+            name: "IN_QUEUE"
+            PropertyChanges { target: add_to_queue_button; text: "Remove From Queue";}
+        },
+        State{
+            name: "NOT_IN_QUEUE"
+            PropertyChanges {target: add_to_queue_button; text: "Add To Queue";}
+        }
+    ]
 
     ListModel {
         id: episode_model
@@ -23,14 +35,18 @@ Rectangle{
 
     Component {
         id: delegate
+        
+
         Column {
             id: wrapper
             padding: 10
-            anchors.horizontalCenter: parent.horizontalCenter
+            property alias state: episode.state
             Episode{
+                id: episode
                 thumbnail: icon
                 episode_name: name
                 episode_number: number
+                state: is_watched? "WATCHED":"TOWATCH"
 
                 MouseArea{
                     anchors.fill: parent
@@ -68,43 +84,60 @@ Rectangle{
             anchors.margins: 15
         }
 
-        Rectangle {
+
+        Rectangle{
             id: series_header_content
             anchors.top: series_name.bottom
-            width: parent.width
-            height: 400
+            anchors.topMargin: 25
+            width: 600
+            height: 325
             color: Material.background
 
             Image{
                 id: portrait
                 source: portrait_icon
                 anchors.left: parent.left
-                anchors.margins: 30
+                anchors.margins: 25
                 anchors.verticalCenter: parent.verticalCenter
                 width: 225
                 height: 325
             }
 
-            Text{
-                id: series_description
-                wrapMode: Text.WordWrap
-                text: description
-                color: Material.primary
-                font.pointSize: 16
+            ScrollView {
+                id: view
                 anchors.left: portrait.right
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: 50
+                width: parent.width - portrait.width - 50
+                height: 325
+                anchors.leftMargin: 25
+                contentHeight:series_description.height
+                contentItem: series_description
+                clip: true
+    
+                //ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+    
+                Text{
+                    id: series_description
+                    text: description
+                    width: view.width
+                    //height: 200
+                    wrapMode: Text.WordWrap
+                    color: Material.primary
+                    font.pointSize: 16
+                }
             }
+
         }
-        
+    
         Rectangle{
             id: collections
-            width: 1000
-            height: 50
+            width: 575
+            height: 75
             anchors.top: series_header_content.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottomMargin: 25
+            anchors.left: series_header_content.left
+            anchors.topMargin: 25
+            anchors.leftMargin: 25
+            
             color: Material.background
 
             ComboBox {
@@ -176,14 +209,43 @@ Rectangle{
             }
         }
         
+        Button {
+            id: add_to_queue_button
+            anchors.left: series_header_content.left
+            anchors.top: collections.bottom
+            anchors.right: collections.right
+            anchors.leftMargin: 25
+            text: "Add To Queue"
+            onClicked: {
+
+                var data = {
+                    "series_id": root.series_id,
+                    "name": root.name,
+                    "portrait": root.portrait_icon,
+                    "landscape": root.landscape_icon,
+                    "description": root.description
+                }
+
+                if(root.state == "IN_QUEUE"){
+                    root.state = "NOT_IN_QUEUE";
+                    backend.removeFromQueue(JSON.stringify(data));
+                }
+                else {
+                    root.state = "IN_QUEUE"
+                    backend.addToQueue(JSON.stringify(data));
+                }
+
+            }
+        }
+    
 
         Rectangle{
             id: episodes_content
-            width: parent.width
-            height: parent.height - series_header_content.height - collections.height - series_name.height
+            width: 600
+            height: parent.height - series_name.height
             anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.top: collections.bottom
+            anchors.top: series_name.bottom
+            anchors.margins: 25
             color: Material.background
 
             ListView {
@@ -209,10 +271,11 @@ Rectangle{
                 var ep_num = data[i].episode_number;
                 var icon = data[i].thumbnail;
                 var media_id = data[i].media_id;
-                var colletion_id = data[i].collection_id
+                var collection_id = data[i].collection_id
+                var isWatched = data[i].isWatched
 
-                backend.addMediaToPlaylist(media_id, name, ep_num)
-                episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": colletion_id});
+                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id, "is_watched": isWatched});
             }
         }
         function onGetCollections(data) {
@@ -226,11 +289,25 @@ Rectangle{
 
                 collection_model.append({"name": name, "series_id": series_id, "collection_id": colletion_id});
             }
-        }    
+        } 
+        function onSetWatched(id) {
+            for(let i=0; i < episode_model.count; i++){
+                var ep = episode_model.get(i);
+                if(id == ep.media_id){
+                    var episode_i = episode_views.itemAtIndex(i);
+                    episode_i.state = "WATCHED";
+                }
+            }
+        }
+
+        function onSetQueueState(state){
+            root.state = state;
+        }
     }
 
     Component.onCompleted: {
-        backend.fetchCollections(series_id)
-        alert.visible = false
+        backend.getQueueState(root.series_id);
+        backend.fetchCollections(series_id);
+        alert.visible = false;
     }
 }

@@ -1,6 +1,6 @@
 import sys
 import os
-
+import atexit
 from PySide2.QtGui import QGuiApplication
 from PySide2.QtQml import QQmlApplicationEngine
 from PySide2.QtQuickControls2 import QQuickStyle
@@ -11,7 +11,12 @@ APPLICATION_NAME =  "AMADEUS_TV"
 AUTHOR = "mastrhyperion98"
 
 
+def exit_handler(backend):
+    #Properly close the crunchyroll server
+    backend.crunchyroll.close()
+
 if __name__ == "__main__":
+    
     print("{} v{} by {}".format(APPLICATION_NAME, VERSION, AUTHOR))
     os.environ['QT_MULTIMEDIA_PREFERRED_PLUGINS']='mdk'
     
@@ -24,12 +29,11 @@ if __name__ == "__main__":
     QQuickStyle.setStyle("Material")
     engine = QQmlApplicationEngine()
     backend = CrunchyrollController(15)
+    atexit.register(exit_handler, backend)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(qml_path)
     #Exit application properly
     if not engine.rootObjects():
-        # Sync application settings
-        backend.settings.store.sync()
         sys.exit(-1)
 
     sys.exit(app.exec_())

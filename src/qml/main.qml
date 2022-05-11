@@ -54,7 +54,6 @@ ApplicationWindow{
             firstStart = data.first_time;
 
             if(isLoggedIn){
-                console.log(isLoggedIn);
                 main.push("Home.qml");
             }
             else{

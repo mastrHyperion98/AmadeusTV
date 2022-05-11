@@ -11,19 +11,12 @@ ScrollView{
     id: scrollview
     width: parent.width
     height: parent.height
-    contentHeight: content.height
+    contentHeight:grid.height
     contentItem: content
     ScrollBar.vertical.policy: ScrollBar.AlwaysOn
     clip: true
 
-    Rectangle{
-        id: content
-        width: parent.width
-        height: 1440
-        color: Material.background
-        
-
-        ListModel {
+    ListModel {
             id: queue_model
             dynamicRoles: true
         }
@@ -38,6 +31,38 @@ ScrollView{
             dynamicRoles: true
         }
 
+        ListModel {
+            id: history_model
+            dynamicRoles: true
+        }
+    
+        Component {
+            id: delegate_history
+            
+    
+            Column {
+                id: wrapper
+                padding: 10
+                Episode{
+                    id: episode
+                    thumbnail: icon
+                    episode_name: name
+                    episode_number: number
+                    completable: false
+    
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            backend.fetchEpisodeList(collection_id)
+                            backend.setPlaylistByID(media_id);
+                            main.push("Player.qml");
+                            allowReturn = true;
+                        } 
+                    }
+                }
+            }
+        }
+
         Component {
             id: delegate
             Column {
@@ -47,7 +72,9 @@ ScrollView{
                     id: image
                     source: icon
                     clip: true
-
+                    width: 640
+                    height: 320
+                    
                     Rectangle{
                         id: backdrop
                         color: Material.background
@@ -81,19 +108,21 @@ ScrollView{
                 }
             }
         }
-
-
+    
+    Grid{
+        id: grid
+        columns: 1
+        width: window.width
         Rectangle{
             id: queue
             width: parent.width
             height: 500
             color: Material.background
             border.width: 5
-            
 
             Label {
                 id: queue_label
-                text: "Watch List"
+                text: "Queue"
                 color: Material.primary
                 font.pointSize: 20
                 //fontSizeMode: Text.Fit
@@ -104,14 +133,12 @@ ScrollView{
             }
 
             ListView {
-                id: queueview
+                id: queue_list
                 anchors.fill: parent
-                anchors.top: queue_label.bottom
-                anchors.topMargin: 50
                 model: queue_model
                 delegate: delegate
                 orientation: ListView.Horizontal
-                clip: true
+                anchors.topMargin: 50
             }
         }
 
@@ -120,8 +147,6 @@ ScrollView{
             width: parent.width
             height: 500
             color: Material.background
-            anchors.top: queue.bottom
-            anchors.topMargin: -30
             border.width: 5
 
             Label {
@@ -151,8 +176,6 @@ ScrollView{
             width: parent.width
             height: 500
             color: Material.background
-            anchors.top: simulcasts.bottom
-            anchors.topMargin: -30
             border.width: 5
 
             Label {
@@ -177,6 +200,36 @@ ScrollView{
             }
         }
 
+        Rectangle{
+            id: history
+            width: parent.width
+            height: 500
+            color: Material.background
+            border.width: 5
+
+            Label {
+                id: history_label
+                text: "History"
+                color: Material.primary
+                font.pointSize: 20
+                //fontSizeMode: Text.Fit
+                font.weight: Font.Bold
+                style: Text.Raised
+                anchors.horizontalCenter: parent.horizontalCenter
+                padding: 15
+            }
+
+            ListView {
+                anchors.fill: parent
+                model: history_model
+                delegate: delegate_history
+                orientation: ListView.Horizontal
+                anchors.top: history_label.bottom
+                anchors.topMargin: 50
+            }
+        }
+        
+
     }
 
     Connections {
@@ -199,20 +252,61 @@ ScrollView{
              }
        } 
 
-       function onAddQueue(id, img) {
-           
-            if(queue_model.count <= 10){
-                var split = id.split("__UUID__");
-                var name = split[0]
-                var id = split[1]
-                queue_model.append({"name": name, "icon": img, "series_id": id});
+        function onAddWatchHistory(data){
+            data = JSON.parse(data);
+            var count = Object.keys(data).length;
+            for(let i = 0; i < count; i++){
+                var name = data[i].name;
+                var ep_num = data[i].episode_number;
+                var icon = data[i].thumbnail;
+                var media_id = data[i].media_id;
+                var collection_id = data[i].collection_id
+
+                //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                history_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
-        } 
+        }
+
+        function onAddWatchHistoryDynamic(data){
+            data = JSON.parse(data);
+            var count = Object.keys(data).length;
+            for(let i = 0; i < count; i++){
+                var name = data[i].name;
+                var ep_num = data[i].episode_number;
+                var icon = data[i].thumbnail;
+                var media_id = data[i].media_id;
+                var collection_id = data[i].collection_id
+
+                //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                history_model.insert(0, {"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
+            }
+        }
+
+        function onAddQueue(data){
+            data = JSON.parse(data);
+            queue_model.append({"name": data.name, "icon": data.landscape, "series_id": data.series_id, "description": data.description, "portrait_icon": data.portrait});
+        }
+
+        function onRemoveQueue(data){
+            var count = queue_model.count;
+
+            for(var i = 0; i < count; i++){
+                var series_id = queue_model.series_id;
+                if(series_id = data){
+                    queue_model.clear();
+                    backend.getQueue();
+                    break;
+                }
+            }
+
+        }
     }
 
 
     Component.onCompleted: {
         backend.getSimulcast();
+        backend.getWatchHistory();
+        backend.getQueue();
         backend.getUpdated();
         // always visible
         window.header.visible = true;
