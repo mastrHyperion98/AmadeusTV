@@ -147,6 +147,7 @@ class CrunchyrollController(QObject):
         for episode in history:
             
             name = episode.name
+            collection_name = episode.collection_name
             episode_number = episode.episode_num
             collection_id = episode.collection_id
             thumbnail = episode.thumbnail
@@ -154,6 +155,7 @@ class CrunchyrollController(QObject):
 
             json_def = {
                 "name": name,
+                "collection_name":  collection_name,
                 "episode_number": episode_number,
                 "collection_id": collection_id,
                 "thumbnail": thumbnail,
@@ -283,10 +285,10 @@ class CrunchyrollController(QObject):
         #         session.close()
 
     
-        self.fetchEpisodeList(default.collection_id)
+        self.fetchEpisodeList(default.name, default.collection_id)
 
-    @Slot(str)
-    def fetchEpisodeList(self, collection_id):
+    @Slot(str, str)
+    def fetchEpisodeList(self, collection_name, collection_id):
         self.playlist.clear()
         episodes = self.crunchyroll.get_episodes(collection_id)
         json_episodes = []
@@ -314,6 +316,7 @@ class CrunchyrollController(QObject):
         
         for episode in episodes:
             name = episode.name
+            collection_name: episode.collection_name
             episode_number = episode.episode_number
             collection_id = collection_id
             series_id = episode.series_id
@@ -323,6 +326,7 @@ class CrunchyrollController(QObject):
             isWatched = self.settings.is_completed(collection_id, media_id)
 
             json_def = {
+                "collection_name": collection_name,
                 "name": name,
                 "episode_number": episode_number,
                 "collection_id": collection_id,
@@ -332,7 +336,7 @@ class CrunchyrollController(QObject):
                 "isWatched": isWatched
             }
             json_episodes.append(json_def)
-            self.addMediaToPlaylist(media_id, name, episode_number, collection_id, thumbnail)
+            self.addMediaToPlaylist(collection_name, media_id, name, episode_number, collection_id, thumbnail)
 
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
@@ -373,8 +377,8 @@ class CrunchyrollController(QObject):
 
 
     @Slot(str, str, str, str, str)
-    def addMediaToPlaylist(self, media_id, name, episode_num, collection_id, img):
-        self.playlist.append(Episode(name, episode_num, media_id, collection_id, img))
+    def addMediaToPlaylist(self, collection_name, media_id, name, episode_num, collection_id, img):
+        self.playlist.append(Episode(collection_name, name, episode_num, media_id, collection_id, img))
 
     @Slot(str)
     def setPlaylistByID(self, id):
@@ -469,9 +473,11 @@ class CrunchyrollController(QObject):
         collection_id = episode.collection_id
         thumbnail = episode.thumbnail
         media_id = episode.media_id
+        collection_name = episode.collection_name
 
         json_def = {
             "name": name,
+            "collection_name": collection_name,
             "episode_number": episode_number,
             "collection_id": collection_id,
             "thumbnail": thumbnail,
@@ -488,7 +494,8 @@ class CrunchyrollController(QObject):
     
 
 class Episode():
-    def __init__(self, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):
+    def __init__(self, collection_name, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):
+        self.collection_name = collection_name
         self.name = name
         self.episode_num = episode_num
         self.media_id = media_id

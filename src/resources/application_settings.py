@@ -10,6 +10,7 @@ class ApplicationSettings():
         if os.path.isfile('app.dat'):
             # File exists
             self.store = shelve.open('app.dat')
+            #self.store['watch_history'] = []
 
         else:
             store = shelve.open('app.dat')
@@ -76,12 +77,11 @@ class ApplicationSettings():
         
         return False
 
-    #To-DO Potential add thumbnails to save time
     def add_view_history(self, episode): 
         is_added = False
         history = self.store['watch_history']
         if len(history) > 0: 
-            if history[0].collection_id != episode.collection_id and history[0].media_id != episode.media_id:
+            if history[0].media_id != episode.media_id:
                 history.insert(0, episode)
                 self.store['watch_history'] = history
                 is_added = True
@@ -89,7 +89,7 @@ class ApplicationSettings():
             history.insert(0, episode)
             self.store['watch_history'] = history
             is_added = True
-
+            
         return is_added
 
         

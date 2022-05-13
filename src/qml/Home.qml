@@ -49,11 +49,14 @@ ScrollView{
                     episode_name: name
                     episode_number: number
                     completable: false
+                    show_collection: true
+                    collection_name: col_name
     
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            backend.fetchEpisodeList(collection_id)
+                            print(col_name)
+                            backend.fetchEpisodeList(col_name, collection_id)
                             backend.setPlaylistByID(media_id);
                             main.push("Player.qml");
                             allowReturn = true;
@@ -87,7 +90,7 @@ ScrollView{
                         id: nameText
                         text: name
                         color: Material.primary
-                        font.pointSize: 24
+                        font.pointSize: 16
                         font.weight: Font.Black
                         style: Text.Outline
                         //styleColor: Material.primary
@@ -256,6 +259,7 @@ ScrollView{
             data = JSON.parse(data);
             var count = Object.keys(data).length;
             for(let i = 0; i < count; i++){
+                var collection_name = data[i].collection_name
                 var name = data[i].name;
                 var ep_num = data[i].episode_number;
                 var icon = data[i].thumbnail;
@@ -263,7 +267,7 @@ ScrollView{
                 var collection_id = data[i].collection_id
 
                 //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
-                history_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
+                history_model.append({"col_name": collection_name, "name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
         }
 
@@ -271,6 +275,7 @@ ScrollView{
             data = JSON.parse(data);
             var count = Object.keys(data).length;
             for(let i = 0; i < count; i++){
+                var collection_name = data[i].collection_name
                 var name = data[i].name;
                 var ep_num = data[i].episode_number;
                 var icon = data[i].thumbnail;
@@ -278,7 +283,7 @@ ScrollView{
                 var collection_id = data[i].collection_id
 
                 //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
-                history_model.insert(0, {"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
+                history_model.insert(0, {"col_name": collection_name,"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id});
             }
         }
 

@@ -12,7 +12,9 @@ Rectangle{
     property var episode_id: ""
     property var episode_name: ""
     property var episode_number: 0
+    property var collection_name: ""
     property bool completable: true
+    property bool show_collection: false
 
 
     width: 600
@@ -51,7 +53,7 @@ Rectangle{
 
         Text {
             id: episodeText
-            text: "Episode: " + episode_number + "\n" + episode_name
+            text: show_collection? collection_name + "\nEpisode: " + episode_number : "Episode: " + episode_number + "\n" + episode_name
             color: Material.primary
             font.pointSize: 16
             //fontSizeMode: Text.Fit

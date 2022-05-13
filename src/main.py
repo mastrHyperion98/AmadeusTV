@@ -26,6 +26,8 @@ if __name__ == "__main__":
     qml_path = os.path.join('qml', 'main.qml')
     #Create our Application
     app = QGuiApplication()
+    app.setApplicationDisplayName("Amadeus TV")
+    #app.setWindowIcon(QIcon("assets/icons-tv-64.png"))
     QQuickStyle.setStyle("Material")
     engine = QQmlApplicationEngine()
     backend = CrunchyrollController(15)
