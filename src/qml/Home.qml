@@ -261,7 +261,7 @@ ScrollView{
             for(let i = 0; i < count; i++){
                 var collection_name = data[i].collection_name
                 var name = data[i].name;
-                var ep_num = data[i].episode_number;
+                var ep_num = data[i].episode_num;
                 var icon = data[i].thumbnail;
                 var media_id = data[i].media_id;
                 var collection_id = data[i].collection_id
@@ -277,7 +277,7 @@ ScrollView{
             for(let i = 0; i < count; i++){
                 var collection_name = data[i].collection_name
                 var name = data[i].name;
-                var ep_num = data[i].episode_number;
+                var ep_num = data[i].episode_num;
                 var icon = data[i].thumbnail;
                 var media_id = data[i].media_id;
                 var collection_id = data[i].collection_id

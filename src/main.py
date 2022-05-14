@@ -13,7 +13,7 @@ AUTHOR = "mastrhyperion98"
 
 def exit_handler(backend):
     #Properly close the crunchyroll server
-    backend.crunchyroll.close()
+    backend.close()
 
 if __name__ == "__main__":
     

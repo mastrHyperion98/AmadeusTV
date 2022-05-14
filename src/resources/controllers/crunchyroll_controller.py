@@ -145,23 +145,7 @@ class CrunchyrollController(QObject):
         history = self.settings.get_view_history(limit=self.limit)
         json_episodes = []
         for episode in history:
-            
-            name = episode.name
-            collection_name = episode.collection_name
-            episode_number = episode.episode_num
-            collection_id = episode.collection_id
-            thumbnail = episode.thumbnail
-            media_id = episode.media_id
-
-            json_def = {
-                "name": name,
-                "collection_name":  collection_name,
-                "episode_number": episode_number,
-                "collection_id": collection_id,
-                "thumbnail": thumbnail,
-                "media_id": media_id,
-            }
-            json_episodes.append(json_def)
+            json_episodes.append(episode)
 
         json_episodes = json.dumps(json_episodes)
         self.addWatchHistory.emit(json_episodes)
@@ -352,20 +336,6 @@ class CrunchyrollController(QObject):
 
     @Slot()
     def logMedia(self):
-        # url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
-        # user_id=str(self.settings.store['user_id'])
-
-        # data = {
-        #     'user_id': user_id,
-        #     'collection_id': self.playlist[self.current].collection_id,
-        #     'episode_id': self.playlist[self.current].media_id,
-        #     'playhead': self.playlist[self.current].playhead,
-        #     'completed': self.playlist[self.current].completed
-        # }
-
-        # req = requests.put(url, json=data)
-
-        # if req.status_code == 200:
         episode = self.playlist[self.current]
         if episode.completed:
             self.settings.add_completed(episode.collection_id,episode.media_id)
@@ -491,6 +461,10 @@ class CrunchyrollController(QObject):
     def updateHistory(self, current):
         self.settings.addViewHistory(current.media_id)
 
+    def close(self):
+        self.crunchyroll.close()
+        self.settings.log_cloud()
+
     
 
 class Episode():
@@ -515,6 +489,18 @@ class Episode():
 
     def setCompleted(self, completed):
         self.completed = completed
+
+    def toJSON(self):
+        return {
+            'collection_name': self.collection_name,
+            'name': self.name,
+            'episode_num': self.episode_num,
+            'media': self.media_id,
+            'collection_id': self.collection_id,
+            'playhead': self.playhead,
+            'completed': self.completed,
+            'thumbnail': self.thumbnail,
+        }
 
 
 
