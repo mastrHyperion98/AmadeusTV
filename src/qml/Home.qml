@@ -263,7 +263,7 @@ ScrollView{
                 var name = data[i].name;
                 var ep_num = data[i].episode_num;
                 var icon = data[i].thumbnail;
-                var media_id = data[i].media_id;
+                var media_id = data[i].media;
                 var collection_id = data[i].collection_id
 
                 //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
@@ -279,7 +279,7 @@ ScrollView{
                 var name = data[i].name;
                 var ep_num = data[i].episode_num;
                 var icon = data[i].thumbnail;
-                var media_id = data[i].media_id;
+                var media_id = data[i].media;
                 var collection_id = data[i].collection_id
 
                 //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)

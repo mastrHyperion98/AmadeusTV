@@ -3,6 +3,7 @@ import shelve
 import os
 import time
 import requests
+import json
 
 class ApplicationSettings():
     def __init__(self):
@@ -86,7 +87,7 @@ class ApplicationSettings():
         is_added = False
         history = self.store['watch_history']
         if len(history) > 0: 
-            if history[0].media_id != episode.media_id:
+            if history[0]['media'] != episode.media_id:
                 history.insert(0, episode.toJSON())
                 self.store['watch_history'] = history
                 is_added = True
@@ -155,12 +156,11 @@ class ApplicationSettings():
             
             if req.status_code == 200:
                 # Update
-                data = json.loads(content)
-                self.store['completion'] =data['completion']
-                self.store['watch_history'] = data['watch_history']
-                self.store['queue'] = data['queue']
-                self.store['queue_index'] = data['queue_index']
-                self.store['updated'] = data['updated']
+                self.store['completion'] =content['completion']
+                self.store['watch_history'] = content['watch_history']
+                self.store['queue'] = content['queue']
+                self.store['queue_index'] = content['queue_index']
+                self.store['updated'] = content['updated']
                 self.store.sync()
 
 
