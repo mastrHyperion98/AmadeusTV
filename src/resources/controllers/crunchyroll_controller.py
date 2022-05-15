@@ -238,6 +238,27 @@ class CrunchyrollController(QObject):
             self.addSearch.emit(json_data, img)
 
     @Slot(str)
+    def explore(self, q):
+        simulcast = self.crunchyroll.filter_series(limit=1000, offset=0, filter_type = Filters.TAG, filter_tag=q.lower())
+        self.searching.emit()
+        for series in simulcast: 
+            img = series.landscape_image['full_url']
+            name = series.name
+            id = series.series_id
+            description = series.description
+            portrait_img = series.portrait_image['full_url']
+
+            data = {
+                "id": id,
+                "name": name,
+                "description": description,
+                "portrait_icon": portrait_img
+            }
+
+            json_data = json.dumps(data)
+            self.addSearch.emit(json_data, img)
+
+    @Slot(str)
     #Get list of collection and return first collection episodes info
     def fetchCollections(self, series_id):
         collections = self.crunchyroll.get_collections(series_id)
