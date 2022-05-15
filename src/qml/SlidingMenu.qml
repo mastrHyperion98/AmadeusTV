@@ -23,7 +23,11 @@ Rectangle{
         width: 200
         font.pointSize: 18
         font.capitalization: Font.MixedCase
-        //onClicked: model.submit()
+        onClicked: {
+            main.push("Explore.qml");
+            window.allowReturn = true;
+            sliding_menu.state = "HIDDEN";
+        }
     }
 
     Button {
@@ -39,7 +43,7 @@ Rectangle{
     }
 
     Button {
-        id: login
+        id: logout
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: settings.bottom
         anchors.margins: 15
@@ -49,20 +53,24 @@ Rectangle{
         font.capitalization: Font.MixedCase
         
         onClicked: {
-            if(isLoggedIn){
-                text = "Login";
-                //backend.cr_logout();
-                //sliding_menu.state = "HIDDEN";
-                
+            backend.cr_logout();
+            sliding_menu.state = "HIDDEN";
+            main.replace("Login.qml");
+        }
+    }
 
-            }
-            else{
-                text = "Logout";
-                //backend.startSession();
-                //main.replace("Login.qml");
-                //sliding_menu.state = "HIDDEN";
-            }
-
+    Button {
+        id: exit
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: logout.bottom
+        anchors.margins: 15
+        text: "Exit"
+        width: 200
+        font.pointSize: 18
+        font.capitalization: Font.MixedCase
+        
+        onClicked: {
+            window.close('','_parent','');
         }
     }
 
@@ -100,11 +108,5 @@ Rectangle{
 
     Connections {
         target: backend
-
-        function onLogout(){
-            window.update();
-            isLoggedIn =  false;
-            sliding_menu.state = "HIDDEN";
-        }
     }
 }

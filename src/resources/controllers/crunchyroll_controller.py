@@ -1,6 +1,7 @@
 import json
 from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
+from datetime import datetime as dt
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 from ..application_settings import ApplicationSettings
@@ -17,6 +18,23 @@ def combine_string(delimeter, strings):
     
     return combined
 
+
+def current_season_tag():
+    currentMonth = dt.now().month
+    currentYear = dt.now().year
+    season = ''
+    if currentMonth < 4:
+        season = 'winter'
+    elif currentMonth < 7:
+        season = 'spring'
+    elif currentMonth < 10:
+        season = 'summer'
+    else:
+        season = 'fall'
+
+    
+    season_tag = f'season:{season}_{currentYear}'
+    return season_tag
 
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
@@ -50,7 +68,6 @@ class CrunchyrollController(QObject):
     addSearch = Signal(str, str)
     startup = Signal(str)
     login = Signal(bool)
-    logout = Signal()
     getRememberMe = Signal(str,str)
     getEpisodes = Signal(str)
     getCollections = Signal(str)
@@ -116,11 +133,10 @@ class CrunchyrollController(QObject):
         self.settings.view_history = []
         self.settings.setUserId(None)
         self.settings.setIsLogin(False)
-        self.logout.emit()
 
     @Slot()
     def getSimulcast(self):
-        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.SIMULCAST)
+        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.TAG, filter_tag=current_season_tag())
 
         data = []
         for series in simulcast: 
