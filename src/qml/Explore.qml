@@ -97,7 +97,7 @@ Rectangle{
         }
         ListElement {
             name: "Shojo"
-            img: "https://img1.ak.crunchyroll.com/i/spire2/e867cabc749a1b7ae05238cce77294231259909627_full.jpg"
+            img: "https://img1.ak.crunchyroll.com/i/spire1/703806a7ade464da496ac6274443456a1641587406_full.jpg"
         }
         ListElement {
             name: "Shonen"

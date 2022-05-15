@@ -485,7 +485,7 @@ class CrunchyrollController(QObject):
         json_def = {
             "name": name,
             "collection_name": collection_name,
-            "episode_number": episode_number,
+            "episode_num": episode_number,
             "collection_id": collection_id,
             "thumbnail": thumbnail,
             "media_id": media_id,
