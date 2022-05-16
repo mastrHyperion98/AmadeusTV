@@ -240,19 +240,15 @@ ScrollView{
 
         function onAddSimulcast(data, img) {
             data = JSON.parse(data);
-            if(simulcast_model.count <= 20){
-                //console.log(JsonObject.name);
-                 simulcast_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
-             }
+            simulcast_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
+             
         }  
 
         function onAddUpdated(data, img) {
 
             data = JSON.parse(data);
-            if(simulcast_model.count <= 20){
-                //console.log(JsonObject.name);
-                 updated_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
-             }
+            updated_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
+            
        } 
 
         function onAddWatchHistory(data){

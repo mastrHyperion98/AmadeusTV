@@ -17,7 +17,7 @@ Rectangle{
     Button {
         id: explore
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: settings.top
+        anchors.bottom: logout.top
         anchors.margins: 15
         text: "Explore"
         width: 200
@@ -31,21 +31,9 @@ Rectangle{
     }
 
     Button {
-        id: settings
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: 15
-        text: "Settings"
-        width: 200
-        font.pointSize: 18
-        font.capitalization: Font.MixedCase
-        //onClicked: model.submit()
-    }
-
-    Button {
         id: logout
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: settings.bottom
+         anchors.verticalCenter: parent.verticalCenter
         anchors.margins: 15
         text: "Logout"
         width: 200

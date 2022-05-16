@@ -49,7 +49,7 @@ class CrunchyrollController(QObject):
         else:
             self.crunchyroll.create_session()
 
-        self.limit = 20
+        self.limit = limit
 
         self.playlist = []
         self.current = 0
@@ -136,7 +136,7 @@ class CrunchyrollController(QObject):
 
     @Slot()
     def getSimulcast(self):
-        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.TAG, filter_tag=current_season_tag())
+        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.SIMULCAST, filter_tag=current_season_tag())
 
         data = []
         for series in simulcast: 

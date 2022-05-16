@@ -425,6 +425,7 @@ Rectangle {
             anchors.right: controlBar.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.margins: 15
+            visible: !window.is_deck
         }
 
         function hide()
