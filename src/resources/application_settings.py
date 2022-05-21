@@ -7,17 +7,21 @@ import json
 
 class ApplicationSettings():
     def __init__(self):
+        home = os.path.expanduser("~")
+        app_folder = os.path.join(home, 'amadeus_tv')
+        os.makedirs(app_folder, exist_ok=True)
+        self.file_path = os.path.join(home, 'amadeus_tv', 'settings.data')
         self.init_store()
         self.load_cloud()
         self.is_modified = False
 
     def init_store(self):
-        if os.path.isfile('app.dat'):
+        if os.path.isfile(self.file_path):
             # File exists
-            self.store = shelve.open('app.dat')
+            self.store = shelve.open(self.file_path)
 
         else:
-            store = shelve.open('app.dat')
+            store = shelve.open(self.file_path)
             store['remember_me'] = False
             store['email'] = None
             store['password'] = None

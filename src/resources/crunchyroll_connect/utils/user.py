@@ -38,13 +38,17 @@ class Config:
 
     def __init__(self):
         self.store = None
-
+        home = os.path.expanduser("~")
+        app_folder = os.path.join(home, 'amadeus_tv')
+        os.makedirs(app_folder, exist_ok=True)
+        self.file_path = os.path.join(app_folder, 'crunchyroll.data')
+        
     def init_store(self):
-        if os.path.isfile('user.dat'):
+        if os.path.isfile(self.file_path):
             # File exists
-            self.store = shelve.open('user.dat')
+            self.store = shelve.open(self.file_path)
         else:
-            store = shelve.open('user.dat')
+            store = shelve.open(self.file_path)
             store['session_id'] = ""
             store['device_id'] = uuid.uuid1()
             store['user'] = None

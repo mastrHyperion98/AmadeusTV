@@ -1,0 +1,156 @@
+{
+    "app-id": "org.flatpak.amadeustv",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "42",
+    "sdk": "org.gnome.Sdk",
+    "command": "run.sh",
+    "finish-args": [
+        "--share=network",
+        "--socket=x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--socket=system-bus",
+        "--require-version=0.11.4",
+        "--device=all",
+        "--filesystem=xdg-run/pipewire-0",
+        "--filesystem=host:ro",
+        "--env=QT_PLUGIN_PATH=/app/lib64/plugins:/app/lib/plugins",
+        "--talk-name=org.gtk.vfs.*",
+        "--filesystem=xdg-run/gvfsd",
+        "--share=ipc",
+        "--device=dri",
+        "--talk-name=org.gnome.SessionManager",
+        "--talk-name=org.gnome.SettingsDaemon",
+        "--talk-name=org.freedesktop.secrets",
+        "--filesystem=xdg-run/gvfs",
+        "--env=GST_PLUGIN_SYSTEM_PATH=/app/lib32/gstreamer-1.0:/app/lib/gstreamer-1.0:/usr/lib/i386-linux-gnu/gstreamer-1.0:/usr/lib/x86_64-linux-gnu/gstreamer-1.0"
+    ],
+    "modules": [
+        {
+            "name": "runner",
+            "buildsystem": "simple",
+            "build-commands": [
+                "install -D run.sh /app/bin/run.sh",
+                "cp -r resources/ /app/resources",
+                "cp -r qml/ /app/qml",
+                "cp -r assets/ /app/assets",
+                "install -D main.py /app/main.py"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "src/main.py"
+                },
+                {
+                    "type": "file",
+                    "path": "run.sh"
+                }, 
+                {
+                    "type": "dir",
+                    "path": "src/resources/",
+                    "dest": "resources/"
+                },
+                {
+                    "type": "dir",
+                    "path": "src/qml/",
+                    "dest": "qml/"
+                },
+                {
+                    "type": "dir",
+                    "path": "src/assets/",
+                    "dest": "assets/"
+                }
+            ]
+        },
+        {
+            "name": "cpython",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tar.xz",
+                    "md5": "21f2e113e087083a1e8cf10553d93599"
+                }
+            ]
+        },
+        {
+            "name": "gdbm",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://ftp.gnu.org/gnu/gdbm/gdbm-1.23.tar.gz",
+                    "md5": "8551961e36bf8c70b7500d255d3658ec"
+                }
+            ]
+        },
+        {
+            "name": "x264",
+            "config-opts": [
+              "--enable-pic",
+              "--enable-shared"
+            ],
+            "sources": [
+              {
+                "type": "git",
+                "url": "https://code.videolan.org/videolan/x264.git",
+                "commit": "5db6aa6cab1b146e07b60cc1736a01f21da01154"
+              }
+            ]
+          },
+          {
+            "name": "x265",
+            "builddir": true,
+            "subdir": "source",
+            "buildsystem": "cmake-ninja",
+            "config-opts": [
+              "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+              "-DBUILD_SHARED_LIBS=ON",
+              "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+            ],
+            "sources": [
+              {
+                "type": "archive",
+                "url": "https://bitbucket.org/multicoreware/x265_git/downloads/x265_3.5.tar.gz",
+                "sha256": "e70a3335cacacbba0b3a20ec6fecd6783932288ebc8163ad74bcc9606477cae8"
+              }
+            ]
+          },
+        {
+            "name": "ffmpeg",
+            "config-opts": [
+              "--enable-pic",
+              "--enable-shared",
+              "--disable-doc",
+              "--disable-static",
+              "--enable-gpl",
+              "--enable-libx264",
+              "--enable-libx265",
+              "--enable-libvpx",
+              "--enable-libmp3lame",
+              "--enable-libvorbis",
+              "--enable-libopus"
+            ],
+            "sources": [
+              {
+                "type": "archive",
+                "url": "https://ffmpeg.org/releases/ffmpeg-4.4.2.tar.xz",
+                "sha256": "af419a7f88adbc56c758ab19b4c708afbcae15ef09606b82b855291f6a6faa93"
+              }
+            ]
+          },
+        {
+            "name": "pip-install",
+            "buildsystem": "simple",
+            "build-options": {
+              "build-args": [
+                "--share=network"
+              ]
+            },
+            "build-commands": [
+                "pip3 install Pyside2~=5.15",
+                "pip3 install requests~=2.26.0",
+                "pip3 install m3u8",
+                "pip3 install uuid"
+            ]
+        }
+    ]
+}
