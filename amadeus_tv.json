@@ -12,12 +12,6 @@
         "--socket=system-bus",
         "--share=ipc",
         "--device=dri",
-        "--talk-name=org.gtk.vfs",
-        "--talk-name=org.gtk.vfs.*", 
-        "--talk-name=org.freedesktop.Notifications",
-        "--talk-name=org.freedesktop.secrets",
-        "--talk-name=org.freedesktop.Flatpak",
-        "--talk-name=org.gnome.OnlineAccounts",
         "--env=GST_PLUGIN_PATH=/app/lib/codecs/lib/gstreamer-1.0"
     ],
     "add-extensions": {
@@ -25,13 +19,6 @@
             "directory": "lib/codecs",
             "add-ld-path": "lib",
             "bundle" : true,
-            "autodelete" : true
-        },
-        "org.gnome.Totem.Videosite": {
-            "directory": "lib/totem-pl-parser",
-            "merge-dirs": "lib;bin;site-packages",
-            "add-ld-path": "lib",
-            "subdirectories": true,
             "autodelete" : true
         }
     },
@@ -46,18 +33,6 @@
         "codecs/ffmpeg.json",
         "codecs/gstreamer.json",
         "codecs/pipewire.json",
-        {
-            "name": "libpeas",
-            "buildsystem": "meson",
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/GNOME/libpeas.git",
-                    "commit": "6b4217e0a5ec451cdbe9380df26d701d8e6bdf88",
-                    "tag": "libpeas-1.26.0"
-                }
-            ]
-        },
         {
             "name": "runner",
             "buildsystem": "simple",
@@ -95,36 +70,12 @@
             ]
         },
         {
-            "name": "gnome-desktop",
-            "buildsystem": "meson",
-            "config-opts": ["-Ddebug_tools=true", "-Dudev=disabled"],
-            "cleanup": [ "/libexec/gnome-desktop-debug" ],
-            "sources": [
-                {
-                    "type": "git",
-                    "url": "https://gitlab.gnome.org/GNOME/gnome-desktop.git",
-                    "commit": "c3e756b28ddfeda0fa061d51cb11e47e09791770",
-                    "tag": "42.0"
-                }
-            ]
-        },
-        {
             "name": "cpython",
             "sources": [
                 {
                     "type": "archive",
                     "url": "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tar.xz",
                     "md5": "21f2e113e087083a1e8cf10553d93599"
-                }
-            ]
-        },
-        {
-            "name": "gdbm",
-            "sources": [
-                {
-                    "type": "archive",
-                    "url": "https://ftp.gnu.org/gnu/gdbm/gdbm-1.23.tar.gz",
-                    "md5": "8551961e36bf8c70b7500d255d3658ec"
                 }
             ]
         },

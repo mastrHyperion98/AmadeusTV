@@ -413,7 +413,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     """
@@ -434,7 +434,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -449,7 +449,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -514,12 +514,12 @@ class Episode():
         self.playhead = playhead
         self.completed = completed
         self.thumbnail = thumbnail
-        self.stream_data = None
+        self.stream = None
     
 
     def getStream(self, crunchyroll):
-        if self.stream_data is None: 
-            self.stream_data = crunchyroll.get_media_stream(self.media_id)
+        if self.stream is None: 
+            self.stream = crunchyroll.get_media_stream(self.media_id)
 
     def setPlayhead(self, playhead):
         self.playhead = playhead
