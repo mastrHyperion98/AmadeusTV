@@ -1,0 +1,103 @@
+{
+    "app-id": "org.flatpak.amadeustv",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "42",
+    "sdk": "org.gnome.Sdk",
+    "command": "run.sh",
+    "finish-args": [
+        "--share=network",
+        "--socket=x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--socket=system-bus",
+        "--share=ipc",
+        "--device=dri",
+        "--env=GST_PLUGIN_PATH=/app/lib/codecs/lib/gstreamer-1.0"
+    ],
+    "add-extensions": {
+        "org.gnome.Totem.Codecs": {
+            "directory": "lib/codecs",
+            "add-ld-path": "lib",
+            "bundle" : true,
+            "autodelete" : true
+        }
+    },
+    "cleanup": [ "/include", "/share/bash-completion", "/share/doc", "/lib/*.la" ],
+    "modules": [
+        "codecs/liba52.json",
+        "codecs/libmpeg2.json",
+        "codecs/libdvdcss.json",
+        "codecs/libdvdread.json",
+        "codecs/libdvdnav.json",
+        "codecs/libass.json",
+        "codecs/ffmpeg.json",
+        "codecs/gstreamer.json",
+        "codecs/pipewire.json",
+        {
+            "name": "runner",
+            "buildsystem": "simple",
+            "build-commands": [
+                "install -D run.sh /app/bin/run.sh",
+                "cp -r resources/ /app/resources",
+                "cp -r qml/ /app/qml",
+                "cp -r assets/ /app/assets",
+                "install -D main.py /app/main.py"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "src/main.py"
+                },
+                {
+                    "type": "file",
+                    "path": "run.sh"
+                }, 
+                {
+                    "type": "dir",
+                    "path": "src/resources/",
+                    "dest": "resources/"
+                },
+                {
+                    "type": "dir",
+                    "path": "src/qml/",
+                    "dest": "qml/"
+                },
+                {
+                    "type": "dir",
+                    "path": "src/assets/",
+                    "dest": "assets/"
+                }
+            ]
+        },
+        {
+            "name": "cpython",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tar.xz",
+                    "md5": "21f2e113e087083a1e8cf10553d93599"
+                }
+            ]
+        },
+        {
+            "name": "pip-install",
+            "buildsystem": "simple",
+            "build-options": {
+              "build-args": [
+                "--share=network"
+              ]
+            },
+            "build-commands": [
+                "pip3 install Pyside2~=5.15",
+                "pip3 install requests~=2.26.0",
+                "pip3 install m3u8",
+                "pip3 install uuid"
+            ]
+        }
+    ],
+    "cleanup-commands" : [
+        "mv /app/lib/libdvd*.*so* /app/lib/liba52*.*so* /app/lib/codecs/lib/",
+        "mv /app/lib/libass.*so* /app/lib/codecs/lib/",
+        "mkdir -p /app/lib/ffmpeg"
+    ]
+}

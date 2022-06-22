@@ -1,18 +1,27 @@
 from operator import truediv
 import shelve
 import os
+import time
+import requests
+import json
 
 class ApplicationSettings():
     def __init__(self):
+        home = os.path.expanduser("~")
+        app_folder = os.path.join(home, 'amadeus_tv')
+        os.makedirs(app_folder, exist_ok=True)
+        self.file_path = os.path.join(home, 'amadeus_tv', 'settings.data')
         self.init_store()
+        self.load_cloud()
+        self.is_modified = False
 
     def init_store(self):
-        if os.path.isfile('app.dat'):
+        if os.path.isfile(self.file_path):
             # File exists
-            self.store = shelve.open('app.dat')
+            self.store = shelve.open(self.file_path)
 
         else:
-            store = shelve.open('app.dat')
+            store = shelve.open(self.file_path)
             store['remember_me'] = False
             store['email'] = None
             store['password'] = None
@@ -23,6 +32,7 @@ class ApplicationSettings():
             store['watch_history'] = []
             store['queue'] = []
             store['queue_index'] = {}
+            store['updated'] = time.time()
             self.store = store
     
     def getRememberMe(self):
@@ -68,6 +78,7 @@ class ApplicationSettings():
             
 
         self.store['completion'] = completed
+        self.is_modified = True
     
     def is_completed(self, collection_id, media_id):
         completed = self.store['completion']
@@ -76,19 +87,21 @@ class ApplicationSettings():
         
         return False
 
-    #To-DO Potential add thumbnails to save time
     def add_view_history(self, episode): 
         is_added = False
         history = self.store['watch_history']
         if len(history) > 0: 
-            if history[0].collection_id != episode.collection_id and history[0].media_id != episode.media_id:
-                history.insert(0, episode)
+            if history[0]['media'] != episode.media_id:
+                history.insert(0, episode.toJSON())
                 self.store['watch_history'] = history
                 is_added = True
         else:
-            history.insert(0, episode)
+            history.insert(0, episode.toJSON())
             self.store['watch_history'] = history
             is_added = True
+        
+        if is_added:
+            self.is_modified = True
 
         return is_added
 
@@ -108,6 +121,7 @@ class ApplicationSettings():
         queue = self.store['queue']
         queue.append(series)
         self.store['queue'] = queue
+        self.is_modified = True
 
     def get_queue(self, limit, offset=0):
         return self.store['queue'][offset:limit+offset]
@@ -124,9 +138,65 @@ class ApplicationSettings():
                 queue.remove(s)
         
         self.store['queue'] = queue
+        self.is_modified = True
 
     def is_in_queue(self, series_id):
         return series_id in self.store['queue_index']
+
+    def load_cloud(self):
+        if self.store['user_id'] is not None:
+            url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
+            session = requests.Session()
+
+            user_id=str(self.store['user_id'])
+
+            data = {
+                'user_id': user_id,
+                'updated': self.store['updated']
+            }
+
+            req = session.get(url, json=data)
+            content = req.json()
+            
+            if req.status_code == 200:
+                # Update
+                self.store['completion'] =content['completion']
+                self.store['watch_history'] = content['watch_history']
+                self.store['queue'] = content['queue']
+                self.store['queue_index'] = content['queue_index']
+                self.store['updated'] = content['updated']
+                self.store.sync()
+
+
+            session.close()
+
+    def log_cloud(self):
+        if not self.is_modified:
+            return 
+
+        url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
+        user_id=str(self.store['user_id'])
+        updated = time.time()
+
+        data = {
+            'user_id': user_id,
+            'data': {
+                'completion': self.store['completion'],
+                'watch_history': self.store['watch_history'],
+                'queue': self.store['queue'],
+                'queue_index': self.store['queue_index'],
+                'updated': updated
+
+            }
+        }
+
+
+        req = requests.put(url, json=data)
+
+
+        if req.status_code == 200:
+            self.store['updated'] = updated
+        
 
 
         

@@ -47,6 +47,7 @@ Rectangle{
                 episode_name: name
                 episode_number: number
                 state: is_watched? "WATCHED":"TOWATCH"
+                show_collection: false
 
                 MouseArea{
                     anchors.fill: parent
@@ -203,8 +204,9 @@ Rectangle{
 
                 onActivated: {
                     var id = collection_model.get(currentIndex).collection_id;
+                    var name = collection_model.get(currentIndex).name;
                     episode_model.clear();
-                    backend.fetchEpisodeList(id);
+                    backend.fetchEpisodeList(name, id);
                 }
             }
         }
@@ -274,7 +276,7 @@ Rectangle{
                 var collection_id = data[i].collection_id
                 var isWatched = data[i].isWatched
 
-                backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
+                //backend.addMediaToPlaylist(media_id, name, ep_num, collection_id, icon)
                 episode_model.append({"name": name, "icon": icon, "number": ep_num, "media_id": media_id, "collection_id": collection_id, "is_watched": isWatched});
             }
         }

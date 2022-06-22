@@ -1,6 +1,7 @@
 import json
 from pickle import NONE
 from PySide2.QtCore import QObject, Slot, Signal
+from datetime import datetime as dt
 from ..crunchyroll_connect.server import CrunchyrollServer
 from ..crunchyroll_connect.utils.types import Quality, Filters, Genres, Enum, RequestType
 from ..application_settings import ApplicationSettings
@@ -18,6 +19,23 @@ def combine_string(delimeter, strings):
     return combined
 
 
+def current_season_tag():
+    currentMonth = dt.now().month
+    currentYear = dt.now().year
+    season = ''
+    if currentMonth < 4:
+        season = 'winter'
+    elif currentMonth < 7:
+        season = 'spring'
+    elif currentMonth < 10:
+        season = 'summer'
+    else:
+        season = 'fall'
+
+    
+    season_tag = f'season:{season}_{currentYear}'
+    return season_tag
+
 class CrunchyrollController(QObject):
     def __init__(self, limit=10):
         QObject.__init__(self)
@@ -31,7 +49,7 @@ class CrunchyrollController(QObject):
         else:
             self.crunchyroll.create_session()
 
-        self.limit = 20
+        self.limit = limit
 
         self.playlist = []
         self.current = 0
@@ -50,7 +68,6 @@ class CrunchyrollController(QObject):
     addSearch = Signal(str, str)
     startup = Signal(str)
     login = Signal(bool)
-    logout = Signal()
     getRememberMe = Signal(str,str)
     getEpisodes = Signal(str)
     getCollections = Signal(str)
@@ -116,11 +133,10 @@ class CrunchyrollController(QObject):
         self.settings.view_history = []
         self.settings.setUserId(None)
         self.settings.setIsLogin(False)
-        self.logout.emit()
 
     @Slot()
     def getSimulcast(self):
-        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.SIMULCAST)
+        simulcast = self.crunchyroll.filter_series(limit=self.limit, offset=0, filter_type = Filters.SIMULCAST, filter_tag=current_season_tag())
 
         data = []
         for series in simulcast: 
@@ -145,21 +161,7 @@ class CrunchyrollController(QObject):
         history = self.settings.get_view_history(limit=self.limit)
         json_episodes = []
         for episode in history:
-            
-            name = episode.name
-            episode_number = episode.episode_num
-            collection_id = episode.collection_id
-            thumbnail = episode.thumbnail
-            media_id = episode.media_id
-
-            json_def = {
-                "name": name,
-                "episode_number": episode_number,
-                "collection_id": collection_id,
-                "thumbnail": thumbnail,
-                "media_id": media_id,
-            }
-            json_episodes.append(json_def)
+            json_episodes.append(episode)
 
         json_episodes = json.dumps(json_episodes)
         self.addWatchHistory.emit(json_episodes)
@@ -236,6 +238,27 @@ class CrunchyrollController(QObject):
             self.addSearch.emit(json_data, img)
 
     @Slot(str)
+    def explore(self, q):
+        simulcast = self.crunchyroll.filter_series(limit=1000, offset=0, filter_type = Filters.TAG, filter_tag=q.lower())
+        self.searching.emit()
+        for series in simulcast: 
+            img = series.landscape_image['full_url']
+            name = series.name
+            id = series.series_id
+            description = series.description
+            portrait_img = series.portrait_image['full_url']
+
+            data = {
+                "id": id,
+                "name": name,
+                "description": description,
+                "portrait_icon": portrait_img
+            }
+
+            json_data = json.dumps(data)
+            self.addSearch.emit(json_data, img)
+
+    @Slot(str)
     #Get list of collection and return first collection episodes info
     def fetchCollections(self, series_id):
         collections = self.crunchyroll.get_collections(series_id)
@@ -283,10 +306,10 @@ class CrunchyrollController(QObject):
         #         session.close()
 
     
-        self.fetchEpisodeList(default.collection_id)
+        self.fetchEpisodeList(default.name, default.collection_id)
 
-    @Slot(str)
-    def fetchEpisodeList(self, collection_id):
+    @Slot(str, str)
+    def fetchEpisodeList(self, collection_name, collection_id):
         self.playlist.clear()
         episodes = self.crunchyroll.get_episodes(collection_id)
         json_episodes = []
@@ -314,6 +337,7 @@ class CrunchyrollController(QObject):
         
         for episode in episodes:
             name = episode.name
+            collection_name: episode.collection_name
             episode_number = episode.episode_number
             collection_id = collection_id
             series_id = episode.series_id
@@ -323,6 +347,7 @@ class CrunchyrollController(QObject):
             isWatched = self.settings.is_completed(collection_id, media_id)
 
             json_def = {
+                "collection_name": collection_name,
                 "name": name,
                 "episode_number": episode_number,
                 "collection_id": collection_id,
@@ -332,7 +357,7 @@ class CrunchyrollController(QObject):
                 "isWatched": isWatched
             }
             json_episodes.append(json_def)
-            self.addMediaToPlaylist(media_id, name, episode_number, collection_id, thumbnail)
+            self.addMediaToPlaylist(collection_name, media_id, name, episode_number, collection_id, thumbnail)
 
         json_episodes = json.dumps(json_episodes)
         self.getEpisodes.emit(json_episodes)
@@ -348,20 +373,6 @@ class CrunchyrollController(QObject):
 
     @Slot()
     def logMedia(self):
-        # url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/"
-        # user_id=str(self.settings.store['user_id'])
-
-        # data = {
-        #     'user_id': user_id,
-        #     'collection_id': self.playlist[self.current].collection_id,
-        #     'episode_id': self.playlist[self.current].media_id,
-        #     'playhead': self.playlist[self.current].playhead,
-        #     'completed': self.playlist[self.current].completed
-        # }
-
-        # req = requests.put(url, json=data)
-
-        # if req.status_code == 200:
         episode = self.playlist[self.current]
         if episode.completed:
             self.settings.add_completed(episode.collection_id,episode.media_id)
@@ -373,8 +384,8 @@ class CrunchyrollController(QObject):
 
 
     @Slot(str, str, str, str, str)
-    def addMediaToPlaylist(self, media_id, name, episode_num, collection_id, img):
-        self.playlist.append(Episode(name, episode_num, media_id, collection_id, img))
+    def addMediaToPlaylist(self, collection_name, media_id, name, episode_num, collection_id, img):
+        self.playlist.append(Episode(collection_name, name, episode_num, media_id, collection_id, img))
 
     @Slot(str)
     def setPlaylistByID(self, id):
@@ -402,7 +413,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     """
@@ -423,7 +434,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -438,7 +449,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream_data[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -469,10 +480,12 @@ class CrunchyrollController(QObject):
         collection_id = episode.collection_id
         thumbnail = episode.thumbnail
         media_id = episode.media_id
+        collection_name = episode.collection_name
 
         json_def = {
             "name": name,
-            "episode_number": episode_number,
+            "collection_name": collection_name,
+            "episode_num": episode_number,
             "collection_id": collection_id,
             "thumbnail": thumbnail,
             "media_id": media_id,
@@ -485,10 +498,15 @@ class CrunchyrollController(QObject):
     def updateHistory(self, current):
         self.settings.addViewHistory(current.media_id)
 
+    def close(self):
+        self.crunchyroll.close()
+        self.settings.log_cloud()
+
     
 
 class Episode():
-    def __init__(self, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):
+    def __init__(self, collection_name, name, episode_num, media_id, collection_id, thumbnail, playhead=0, duration=0, completed = False):
+        self.collection_name = collection_name
         self.name = name
         self.episode_num = episode_num
         self.media_id = media_id
@@ -496,18 +514,30 @@ class Episode():
         self.playhead = playhead
         self.completed = completed
         self.thumbnail = thumbnail
-        self.stream_data = None
+        self.stream = None
     
 
     def getStream(self, crunchyroll):
-        if self.stream_data is None: 
-            self.stream_data = crunchyroll.get_media_stream(self.media_id)
+        if self.stream is None: 
+            self.stream = crunchyroll.get_media_stream(self.media_id)
 
     def setPlayhead(self, playhead):
         self.playhead = playhead
 
     def setCompleted(self, completed):
         self.completed = completed
+
+    def toJSON(self):
+        return {
+            'collection_name': self.collection_name,
+            'name': self.name,
+            'episode_num': self.episode_num,
+            'media': self.media_id,
+            'collection_id': self.collection_id,
+            'playhead': self.playhead,
+            'completed': self.completed,
+            'thumbnail': self.thumbnail,
+        }
 
 
 

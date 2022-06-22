@@ -40,8 +40,8 @@ Rectangle{
                 id: image
                 source: icon
                 clip: true
-                width: search_results.cellWidth - 10
-                height: search_results.cellHeight - 60
+                width: search_results.cellWidth - 20
+                height: search_results.cellHeight - 40
 
                 Rectangle{
                     id: backdrop
@@ -86,7 +86,7 @@ Rectangle{
 
        function onAddSearch(data, img) {
             data = JSON.parse(data);
-            if(search_model.count <= 100){
+            if(search_model.count <= 1000){
                 //console.log(JsonObject.name);
                 search_model.append({"name": data.name, "icon": img, "series_id": data.id, "description": data.description, "portrait_icon": data.portrait_icon});
             }
