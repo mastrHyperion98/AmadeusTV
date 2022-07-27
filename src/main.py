@@ -20,6 +20,8 @@ def exit_handler(backend):
 if __name__ == "__main__":
     
     print("{} v{} by {}".format(APPLICATION_NAME, VERSION, AUTHOR))
+
+    os.environ['QT_QPA_PLATFORM'] = 'xcb'
     platform_release = platform.release()
     is_deck = False
     if platform_release.__contains__('valve'):
