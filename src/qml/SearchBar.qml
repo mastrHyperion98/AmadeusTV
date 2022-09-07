@@ -49,46 +49,19 @@ ToolBar {
         }
     }  
 
-    ImageButton{
-        id: explore_button
-        anchors.right: setting_button.left
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.rightMargin: 20
-        imageSource: "../assets/explore.png"
-        //checkable: true
-        onClicked: {
-            //isLoggedIn = !isLoggedIn
-        }
-    }
 
     ImageButton{
-        id: setting_button
-        anchors.right: login_button.left
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.rightMargin: 20
-        imageSource:  "../assets/settings.png"
-        //checkable: true
-        onClicked: {
-            //isLoggedIn = !isLoggedIn
-        }
-    }
-
-    ImageButton{
-        id: login_button
+        id: menu_button
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 20
-        imageSource: isLoggedIn? "../assets/logout.png" : "../assets/login.png"
+        imageSource: "../assets/menu.png"
         //checkable: true
         onClicked: {
-            if(isLoggedIn){
-                backend.cr_logout();
-            }
-            else{
-               // backend.startSession();
-                backend.setStartup();
-                main.replace("Login.qml");
-            }
+            if (sliding_menu.state == "VISIBLE")
+                sliding_menu.state = "HIDDEN";
+            else
+                sliding_menu.state = "VISIBLE";
         }
     }
 
@@ -109,8 +82,9 @@ ToolBar {
             if(main.currentItem.objectName == "HOME")
                 allowReturn = false;
             alert.visible = false;
+            sliding_menu.state = "HIDDEN";
         }
-
+        
         visible: allowReturn
     }
 
@@ -129,14 +103,6 @@ ToolBar {
         if(shouldSearch){
             backend.search(text);
             shouldSearch = false;
-        }
-    }
-
-    Connections {
-        target: backend
-
-        function onLogout(){
-            isLoggedIn =  !isLoggedIn;
         }
     }
 }

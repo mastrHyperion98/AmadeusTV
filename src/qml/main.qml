@@ -15,11 +15,13 @@ ApplicationWindow{
     height: 720
     title: "AmadeusTV"
     visible: true
+    visibility: is_deck ? Window.FullScreen : Window.Windowed
     property var isSearching: false
     property var allowReturn: false
     property bool isLoggedIn: false
     property var isRememberMe: false
     property var firstStart: true
+    property bool is_deck: false
 
     Material.theme: Material.Dark
     Material.accent: "#DD2C00"
@@ -39,7 +41,7 @@ ApplicationWindow{
     
     Component.onCompleted: {
         backend.setStartup();
-        alert.visible = false
+        alert.visible = false;
     }
 
 
@@ -54,7 +56,6 @@ ApplicationWindow{
             firstStart = data.first_time;
 
             if(isLoggedIn){
-                console.log(isLoggedIn);
                 main.push("Home.qml");
             }
             else{

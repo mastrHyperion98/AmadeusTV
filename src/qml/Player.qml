@@ -11,6 +11,7 @@ Rectangle {
     property bool isFullscreen: false
     property bool isSettingsOpen: false
     property int playback_position: 0
+    property bool isCompleted: false
 
 
     MouseArea {
@@ -132,6 +133,11 @@ Rectangle {
 
             //text: player.playbackState === MediaPlayer.PlayingState ? qsTr("Pause"): qsTr("Play")
             onClicked: {
+                backend.setCurrentPlayback(player.position);
+                if(player.position / player.duration >= 0.90 & !isCompleted)
+                    backend.setCurrentCompleted(true);
+
+                backend.logMedia();
                 backend.getNext();
             }
             anchors.left: play_button.left
@@ -408,7 +414,7 @@ Rectangle {
         }
         ImageButton {
             id: fullscreenButton
-            imageSource: window.isFullscreen ? "../assets/close_fullscreen.png":"../assets/enter_fullscreen.png"
+            imageSource: isFullscreen ? "../assets/close_fullscreen.png":"../assets/enter_fullscreen.png"
             onClicked: {
                 //Toggle fullscreen
                 toggleFullScreen();
@@ -419,6 +425,7 @@ Rectangle {
             anchors.right: controlBar.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.margins: 15
+            visible: !window.is_deck
         }
 
         function hide()
@@ -488,15 +495,30 @@ Rectangle {
 
         property bool isMouseAbove: false
 
-        MouseArea {
-            anchors.fill:videoHeader
-            hoverEnabled: true
 
-            onEntered: videoHeader.isMouseAbove = true;
-            onExited: {
-                videoHeader.isMouseAbove = false;
+        ImageButton{
+            id: return_button
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: 10
+            imageSource: "../assets/return.png"
+            onClicked: {
+                main.pop();
+                window.header.visible = true;
             }
+    
+            visible: allowReturn
         }
+
+        // MouseArea {
+        //     anchors.fill:videoHeader
+        //     hoverEnabled: true
+
+        //     onEntered: videoHeader.isMouseAbove = true;
+        //     onExited: {
+        //         videoHeader.isMouseAbove = false;
+        //     }
+        // }
 
 
 
@@ -571,12 +593,12 @@ Rectangle {
         if(!isFullscreen){
             window.showFullScreen();
             isFullscreen = true;
-            window.header.visible = false;
+            //window.header.visible = false;
         }
         else {
             window.showNormal();
             isFullscreen = false;
-            window.header.visible = true;
+            //window.header.visible = false;
         }
     }
 
@@ -600,11 +622,24 @@ Rectangle {
                 seekControl.position = player.position;
             setPlaybackPosition();
 
+            if(player.position / player.duration >= 0.90 & !isCompleted){
+                backend.setCurrentCompleted(true);
+                isCompleted = true;
+                backend.logMedia();
+            }
+
             if(player.duration > 0)
-                if(player.position == player.duration){
+                if(player.position >= player.duration){
+                    player.pause();
+                    backend.setCurrentPlayback(player.position);
                     backend.getNext();
                     player.play();
                 }
+
+            var position_in_minutes = player.position * 1.666667e-5;
+            if(position_in_minutes > 0.05 & position_in_minutes % 3 <= 0 + (0.01 * player.playbackRate)){
+                backend.setCurrentPlayback(player.position);
+            } 
         }
 
         // check when media is stalled
@@ -612,13 +647,10 @@ Rectangle {
         function onStatusChanged(){
             if(player.status ==  MediaPlayer.Stalled){
                 player.pause();
-                console.log("Mediaplayer is stalled and is buffering");
-                
             }
 
             else if(player.status == MediaPlayer.Buffered){
                 player.play();
-                console.log("Mediaplayer buffered was filled");
             }
         }
 
@@ -627,9 +659,11 @@ Rectangle {
         target: backend
         
         function onSetSource(source) {
+            isCompleted = false;
             playback_position = 0;
             player.source = source ;
             player.play()
+            backend.logMedia();
         }  
 
         function onSetHeader(name, number){
@@ -646,5 +680,6 @@ Rectangle {
     Component.onCompleted: {
         backend.getCurrent();
         alert.visible = false
+        window.header.visible = false;
     }
 }
