@@ -389,17 +389,20 @@ class CrunchyrollServer:
             playlist = m3u8.load(url)  # this could also be an absolute filename
             m3u8_playlist = playlist.data['playlists']
             media_streams = {}
+            visited_resolutions = []
             urls = []
             for i in range(len(m3u8_playlist)):
                 #Don't visit duplicates
-                r = i % 2
-                stream = m3u8_playlist[i]
 
-                if (r==0):
-                    quality = res_to_quality(stream['stream_info']['resolution'])
+                stream = m3u8_playlist[i]
+                resolution = stream['stream_info']['resolution']
+                
+                if (resolution not in visited_resolutions):
+                    quality = res_to_quality(resolution)
                     url = stream['uri']
                     media_stream = MediaStream(quality, expires, url)
                     media_streams[quality] = media_stream
+                    visited_resolutions.append(resolution)
 
             return media_streams
 
