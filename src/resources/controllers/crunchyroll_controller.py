@@ -284,28 +284,6 @@ class CrunchyrollController(QObject):
 
         default = collections[0]
 
-        # if self.settings.store['user_id'] is not None:
-        #         url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
-        #         session = requests.Session()
-
-        #         user_id=str(self.settings.store['user_id'])
-
-        #         data = {
-        #             'user_id': user_id,
-        #             'collection_id': default.collection_id
-        #         }
-
-        #         req = session.get(url, json=data)
-        #         content = req.json()
-        #         print("SQL QUERY!!!")
-        #         print(content)
-        #         if req.status_code == 200:
-        #             print("SQL QUERY!!!")
-        #             print(content)
-
-        #         session.close()
-
-    
         self.fetchEpisodeList(default.name, default.collection_id)
 
     @Slot(str, str)
@@ -313,27 +291,6 @@ class CrunchyrollController(QObject):
         self.playlist.clear()
         episodes = self.crunchyroll.get_episodes(collection_id)
         json_episodes = []
-
-        # if self.settings.store['user_id'] is not None:
-        #         url = "https://1kd8ybmavl.execute-api.us-east-1.amazonaws.com/amadeus-tv-completion-get"
-        #         session = requests.Session()
-
-        #         user_id=str(self.settings.store['user_id'])
-
-        #         data = {
-        #             'user_id': user_id,
-        #             'collection_id': collection_id
-        #         }
-
-        #         req = session.get(url, json=data)
-        #         content = req.json()
-        #         print("SQL QUERY!!!")
-        #         print(content)
-        #         if req.status_code == 200:
-        #             print("SQL QUERY!!!")
-        #             print(content)
-
-        #         session.close()
         
         for episode in episodes:
             name = episode.name
