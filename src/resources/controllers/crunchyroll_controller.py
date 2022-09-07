@@ -413,7 +413,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.HIGH.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     """
@@ -434,7 +434,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.HIGH.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
@@ -449,7 +449,7 @@ class CrunchyrollController(QObject):
         except Exception as ex:
             self.alert.emit("Error loading video stream - may not have access to this content !")
 
-        self.setSource.emit(episode.stream[Quality.ULTRA.value].url)
+        self.setSource.emit(episode.stream[Quality.HIGH.value].url)
         self.setHeader.emit(episode.name, episode.episode_num)
 
     @Slot()
