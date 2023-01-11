@@ -13,7 +13,7 @@ The application interfaces with the Crunchyroll semi-public api via a python wra
 
 # Features: 
 
-Amadeus TV uses a crunchyroll API wrapper that I wrote, crunchyroll-connect (not yet updated for the new API that was rolled out). It supports the following features.
+Amadeus TV uses a crunchyroll API wrapper that I wrote, [Crunchyroll-Connect](https://github.com/mastrHyperion98/crunchyroll-connect) which has not yet updated with the new API that was rolled out recently. It supports the following features.
 
 * Login to Crunchyroll
 * Queue and watch history stored on AWS using Crunchyroll ID so no need to create a new account
